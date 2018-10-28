@@ -1,0 +1,6 @@
+---
+name: antidoteops
+description: Stackstorm pack for running Antidote ops
+version: 0.1.0
+author: mierdin
+email: info@stackstorm.com

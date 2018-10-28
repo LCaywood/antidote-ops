@@ -1,0 +1,15 @@
+version: '2.0'
+antidoteops.release:
+    description: Prepare antidote projects for release.
+    input:
+        - version
+        - repos
+
+    tasks:
+
+        release_all_repos:
+            with-items: repo in <% $.repos %>
+            action: antidoteops.prep_release
+            input:
+                project: <% $.repo %>
+                version: <% $.version %>

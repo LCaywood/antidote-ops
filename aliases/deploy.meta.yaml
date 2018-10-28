@@ -1,0 +1,15 @@
+---
+name: "deploy"
+pack: "antidoteops"
+action_ref: "antidoteops.deploy"
+description: "Deploy antidote"
+formats:
+  - "antidote deploy {{version}} to {{tier}}"
+
+result:
+  format: |
+    {% if execution.status != "failed"  %}
+      Successfully deployed {{ execution.parameters.version }} to {{ execution.parameters.tier }}
+    {% else %}
+      There was a problem deploying {{ execution.parameters.version }} to {{ execution.parameters.tier }}
+    {% endif %}

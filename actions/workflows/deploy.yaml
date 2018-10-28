@@ -1,0 +1,84 @@
+---
+  version: '2.0'
+
+  antidoteops.deploy:
+
+    input:
+      - tier
+      - version
+
+    type: direct
+
+    tasks:
+
+      determine_version:
+        action: core.noop
+        on-success:
+            - set_latest: <% $.version = 'latest' %>
+            - set_version: <% not $.version = 'latest' %>
+
+      set_latest:
+        action: core.noop
+        publish:
+          docker_version: latest
+          git_version: master
+        on-success:
+            - wait_for_images
+
+      set_version:
+        action: core.noop
+        publish:
+          docker_version: "release-v{{ version_strip_patch(_.version) }}"
+          git_version: "v{{ _.version }}"
+        on-success:
+            - wait_for_images
+
+      wait_for_images:
+        action: antidoteops.wait_for_docker_image
+        input:
+          image: syringe
+          version: "{{ _.docker_version }}"
+          tries: "5"
+          delay: "10"
+        on-success:
+            - patch_syringe
+
+
+      patch_syringe:
+        action: kubernetes.patchExtensionsV1beta1NamespacedDeployment
+        input:
+          name: syringe
+          namespace: "{{ _.tier }}"
+          body:
+            spec:
+              template:
+                spec:
+                  containers:
+                  - name: syringe
+                    image: "antidotelabs/syringe:{{ _.docker_version }}"
+                    env:
+                    - name: SYRINGE_LESSON_REPO_BRANCH
+                      value: "{{ _.git_version }}"
+                  initContainers:
+                  - name: git-clone
+                    args:
+                    - "https://github.com/nre-learning/antidote.git"
+                    - "{{ _.git_version }}"
+                    - "/antidote"
+          pretty: "true"
+
+
+
+
+
+
+# kubectl create sa stanley
+# kubectl create clusterrolebinding owner-cluster-admin-binding \
+#     --clusterrole cluster-admin \
+#     --user stanley
+# secret=$(kubectl get sa stanley -o json | jq -r '.secrets[0].name')
+# kubectl get secret $secret -o json | jq -r '.data["token"]' | base64 -D
+
+
+# kubectl get secret $secret -o json | jq -r '.data["ca.crt"]' | base64 -D > ca.crt
+

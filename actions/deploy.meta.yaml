@@ -1,0 +1,21 @@
+---
+  name: "deploy"
+  description: "Workflow to deploy a certain version of Antidote to a region"
+  runner_type: "mistral-v2"
+  pack: antidoteops
+  enabled: true
+  entry_point: "workflows/deploy.yaml"
+  parameters:
+    tier:
+      required: true
+      description: "Tier to deploy to"
+      type: string
+      enum:
+        - prod
+        - ptr
+    version:
+      required: false
+      description: "Which release to deploy. Defaults to latest/master branch/tag of all resources"
+      default: latest
+      type: string
+

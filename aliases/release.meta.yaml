@@ -1,0 +1,15 @@
+---
+name: "release"
+pack: "antidoteops"
+action_ref: "antidoteops.release"
+description: "Release antidote"
+formats:
+  - "antidote release {{version}}"
+
+result:
+  format: |
+    {% if execution.status != "failed"  %}
+      Successfully released {{ execution.parameters.version }}
+    {% else %}
+      There was a problem releasing {{ execution.parameters.version }}
+    {% endif %}
