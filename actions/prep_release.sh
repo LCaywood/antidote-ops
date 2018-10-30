@@ -7,7 +7,9 @@ FORK=$4
 LOCAL_REPO=$5
 GIT_REPO="git@github.com:${FORK}/${PROJECT}.git"
 SHORT_VERSION=`echo ${VERSION} | cut -d "." -f1-2`
-BRANCH="release-v${SHORT_VERSION}"
+# Using version for now. Each minor version gets its own branch.
+BRANCH="release-v${VERSION}"
+# BRANCH="release-v${SHORT_VERSION}"
 TAGGED_VERSION="v${VERSION}"
 CWD=`pwd`
 
