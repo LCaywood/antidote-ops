@@ -66,19 +66,19 @@
                     - "{{ _.git_version }}"
                     - "/antidote"
           pretty: "true"
+        on-success:
+            - patch_antidoteweb
 
-
-
-
-
-
-# kubectl create sa stanley
-# kubectl create clusterrolebinding owner-cluster-admin-binding \
-#     --clusterrole cluster-admin \
-#     --user stanley
-# secret=$(kubectl get sa stanley -o json | jq -r '.secrets[0].name')
-# kubectl get secret $secret -o json | jq -r '.data["token"]' | base64 -D
-
-
-# kubectl get secret $secret -o json | jq -r '.data["ca.crt"]' | base64 -D > ca.crt
-
+      patch_antidoteweb:
+        action: kubernetes.patchExtensionsV1beta1NamespacedDeployment
+        input:
+          name: antidote-web
+          namespace: "{{ _.tier }}"
+          body:
+            spec:
+              template:
+                spec:
+                  containers:
+                  - name: antidote-web
+                    image: "antidotelabs/antidote-web:{{ _.docker_version }}"
+          pretty: "true"
