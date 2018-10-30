@@ -11,6 +11,15 @@
 
     tasks:
 
+      get_time:
+        action: core.local
+        input:
+          cmd: "date +%s"
+        publish:
+          current_time: "{{ task('get_time').result.stdout }}"
+        on-success:
+            - determine_version
+
       determine_version:
         action: core.noop
         on-success:
@@ -43,7 +52,6 @@
         on-success:
             - patch_syringe
 
-
       patch_syringe:
         action: kubernetes.patchExtensionsV1beta1NamespacedDeployment
         input:
@@ -51,7 +59,10 @@
           namespace: "{{ _.tier }}"
           body:
             spec:
-              template:
+              template: 
+                metadata:
+                  labels:
+                    lastdeployed: "{{ _.current_time }}"
                 spec:
                   containers:
                   - name: syringe
@@ -77,6 +88,9 @@
           body:
             spec:
               template:
+                metadata:
+                  labels:
+                    lastdeployed: "{{ _.current_time }}"
                 spec:
                   containers:
                   - name: antidote-web
