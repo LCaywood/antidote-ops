@@ -1,0 +1,18 @@
+---
+name: autodeploy-ptr-antidote-web
+description: Deploy latest changes of antidote-web to PTR
+trigger:
+  type: git.head_sha_monitor
+criteria:
+  trigger.repository_url:
+    pattern: https://github.com/nre-learning/antidote-web.git
+    type: equals
+  trigger.branch:
+    pattern: master
+    type: equals
+action:
+  ref: antidoteops.deploy
+  parameters:
+    version: latest
+    tier: ptr
+enabled: true
