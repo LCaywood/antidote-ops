@@ -5,6 +5,12 @@ description: Tweet new content
 enabled: true
 entry_point: workflows/tweet_new_content.yaml
 parameters:
-    tweet_text:
+    title:
+        type: string
+        required: true
+    featuredimage:
+        type: string
+        required: true
+    link:
         type: string
         required: true

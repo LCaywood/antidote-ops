@@ -2,14 +2,19 @@ version: '2.0'
 antidoteops.tweet_new_content:
     description: Tweet new content
     input:
-        - tweet_text
+        - title
+        - featuredimage
+        - link
+
+    # TODO add account logic
 
     tasks:
 
         first_tweet:
-            action: core.local
+            action: twitter.update_status
             input:
-                cmd: echo1 <% $.tweet_text %>
+                status: "[New Post] <% $.title %> <% $.link %>"
+                media: "<% $.featuredimage %>"
 
         first_sleep:
             action: core.pause
@@ -19,6 +24,20 @@ antidoteops.tweet_new_content:
                 max_pause: 86400
 
         second_tweet:
-            action: core.local
+            action: twitter.update_status
             input:
-                cmd: echo2 <% $.tweet_text %>
+                status: "♻ Post: <% $.title %> <% $.link %>"
+                media: "<% $.featuredimage %>"
+
+        second_sleep:
+            action: core.pause
+            timeout: 87000
+            input:
+                timeout: 87000
+                max_pause: 86400
+
+        third_tweet:
+            action: twitter.update_status
+            input:
+                status: "♻♻ Post: <% $.title %> <% $.link %>"
+                media: "<% $.featuredimage %>"

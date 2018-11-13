@@ -1,0 +1,13 @@
+---
+name: tweet_new_content
+description: Tweet new content
+trigger:
+  type: antidoteops.new_content
+criteria: {}
+action:
+  ref: antidoteops.tweet_new_content
+  parameters:
+    link: "{{ trigger.link }}"
+    featuredimage: "{{ trigger.featuredimage }}"
+    title: "{{ trigger.title }}"
+enabled: true
