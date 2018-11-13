@@ -16,7 +16,7 @@
         input:
           cmd: "date +%s"
         publish:
-          current_time: "{{ task('get_time').result.stdout }}"
+          current_time: "{{ task('get_time').result.stdout|string }}"
         on-success:
             - determine_version
 

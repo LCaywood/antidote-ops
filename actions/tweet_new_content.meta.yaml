@@ -1,0 +1,10 @@
+---
+name: tweet_new_content
+runner_type: mistral-v2
+description: Tweet new content
+enabled: true
+entry_point: workflows/tweet_new_content.yaml
+parameters:
+    tweet_text:
+        type: string
+        required: true
