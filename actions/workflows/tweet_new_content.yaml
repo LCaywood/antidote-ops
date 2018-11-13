@@ -8,13 +8,17 @@ antidoteops.tweet_new_content:
 
     # TODO add account logic
 
+    type: direct
+
     tasks:
 
         first_tweet:
             action: twitter.update_status
             input:
                 status: "[New Post] <% $.title %> <% $.link %>"
-                media: "<% $.featuredimage %>"
+                media: ["<% $.featuredimage %>"]
+            on-success:
+                - first_sleep
 
         first_sleep:
             action: core.pause
@@ -22,12 +26,16 @@ antidoteops.tweet_new_content:
             input:
                 timeout: 87000
                 max_pause: 86400
+            on-success:
+                - second_tweet
 
         second_tweet:
             action: twitter.update_status
             input:
                 status: "♻ Post: <% $.title %> <% $.link %>"
-                media: "<% $.featuredimage %>"
+                media: ["<% $.featuredimage %>"]
+            on-success:
+                - second_sleep
 
         second_sleep:
             action: core.pause
@@ -35,9 +43,11 @@ antidoteops.tweet_new_content:
             input:
                 timeout: 87000
                 max_pause: 86400
+            on-success:
+                - third_tweet
 
         third_tweet:
             action: twitter.update_status
             input:
                 status: "♻♻ Post: <% $.title %> <% $.link %>"
-                media: "<% $.featuredimage %>"
+                media: ["<% $.featuredimage %>"]
