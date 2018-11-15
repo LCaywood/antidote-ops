@@ -1,0 +1,12 @@
+---
+  name: "wait_until"
+  runner_type: "python-script"
+  description: "Action to wait for a certain date/time."
+  enabled: true
+  entry_point: "wait_until.py"
+  parameters:
+    futuretime:
+      type: "string"
+      description: "Datetime (RFC3339) to wait until. Default is the next instance of 1700 UTC"
+      required: false
+      position: 0

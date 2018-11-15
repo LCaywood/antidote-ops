@@ -6,11 +6,14 @@ antidoteops.tweet_new_content:
         - featuredimage
         - link
 
-    # TODO add account logic
-
     type: direct
 
     tasks:
+
+        wait_until_pubtime:
+            action: antidoteops.wait_until
+            on-success:
+                - first_tweet
 
         first_tweet:
             action: twitter.update_status
