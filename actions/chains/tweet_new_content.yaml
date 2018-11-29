@@ -1,0 +1,61 @@
+    # TODO
+    # - add account logic
+    # - Add task to wait for a certain time of day before starting (don't forget timeout there too)
+    # - fix timeouts?
+
+    # Don't forget to increase the token TTL in st2.conf if you use mistral for this.:
+
+        # [auth]
+        # service_token_ttl = 604800
+        # token_ttl = 604800
+
+    # Actually need to create a whole new pack for automating content sharing, complete with aliases to immediately share things
+
+---
+default: "wait_until_pubtime"
+chain:
+    - name: wait_until_pubtime
+        ref: antidoteops.wait_until
+        parameters:
+            timeout: 87000
+        on-success: "first_tweet"
+
+    - name: first_tweet
+        ref: twitter.update_status
+        parameters:
+            timeout: 87000
+            status: "[New Post] {{title}} {{link }}"
+            media: ["{{featuredimage}}"]
+        on-success: "first_sleep"
+
+    - name: first_sleep
+        ref: core.pause
+        parameters:
+            timeout: 87000
+            max_pause: 86400
+        on-success: "second_tweet"
+
+
+    - name: second_tweet
+        ref: twitter.update_status
+        parameters:
+            timeout: 87000
+            status: "♻ Post: {{title}} {{link }}"
+            media: ["{{featuredimage}}"]
+        on-success: "second_sleep"
+
+    - name: second_sleep
+        ref: core.pause
+        parameters:
+            timeout: 87000
+            max_pause: 86400
+        on-success: "second_sleep"
+
+
+    - name: third_tweet
+        ref: twitter.update_status
+        parameters:
+            timeout: 87000
+            status: "♻♻ Post: {{title}} {{link }}"
+            media: ["{{featuredimage}}"]
+        on-success: "third_sleep"

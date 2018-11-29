@@ -1,9 +1,10 @@
 ---
-name: tweet_new_content
-runner_type: mistral-v2
+name: "tweet_new_content"
 description: Tweet new content
+runner_type: "action-chain"
+entry_point: chains/tweet_new_content.yaml
 enabled: true
-entry_point: workflows/tweet_new_content.yaml
+
 parameters:
     title:
         type: string
