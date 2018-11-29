@@ -28,8 +28,11 @@ class WaitUntilAction(Action):
 
         next_pubtime = get_next_pubtime()
 
+        self.logger.info('Waiting until %s' % next_pubtime)
+        print('Waiting until %s' % next_pubtime)
+
         if futuretime:
-            next_pubtime = datetime.strptime('1985-04-12T23:20:50', "%Y-%m-%dT%H:%M:%S")
+            next_pubtime = datetime.strptime(futuretime, "%Y-%m-%dT%H:%M:%S")
         
         while True:
             now = datetime.utcnow()

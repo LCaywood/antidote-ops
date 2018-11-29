@@ -52,6 +52,9 @@
         on-success:
             - patch_syringe
 
+      # TODO(mierdin): Update platform manifests in Git too so they're not out of sync.
+      # You might also consider updating them and applying them to ENSURE they're in sync.
+
       patch_syringe:
         action: kubernetes.patchExtensionsV1beta1NamespacedDeployment
         input:
