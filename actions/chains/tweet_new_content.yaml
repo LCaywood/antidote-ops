@@ -1,26 +1,30 @@
     # TODO
     # - add account logic
     # - Add task to wait for a certain time of day before starting (don't forget timeout there too)
+    # - Adjust wait_until_pubtime to only publish on weekends
     # - fix timeouts?
+    # - Actually need to create a whole new pack for automating content sharing, complete with aliases to immediately share things
 
-    # Don't forget to increase the token TTL in st2.conf if you use mistral for this.:
 
+# This was originally a Mistral workflow, but since Mistral uses service tokens to authenticate to st2, we need to increase the TTL
+# for long-running workflows like this:
         # [auth]
         # service_token_ttl = 604800
         # token_ttl = 604800
+# I converted to an actionchain for simplicity - I don't need the differentiating features in Mistral for this, and I don't want to have
+# to adjust st2.conf if I can avoid it. Makes this pack more portable.
 
-    # Actually need to create a whole new pack for automating content sharing, complete with aliases to immediately share things
 
 ---
-default: "wait_until_pubtime"
+default: "first_tweet"
 chain:
-    - name: wait_until_pubtime
+      - name: wait_until_pubtime
         ref: antidoteops.wait_until
         parameters:
             timeout: 87000
         on-success: "first_tweet"
 
-    - name: first_tweet
+      - name: first_tweet
         ref: twitter.update_status
         parameters:
             timeout: 87000
@@ -28,7 +32,7 @@ chain:
             media: ["{{featuredimage}}"]
         on-success: "first_sleep"
 
-    - name: first_sleep
+      - name: first_sleep
         ref: core.pause
         parameters:
             timeout: 87000
@@ -36,7 +40,7 @@ chain:
         on-success: "second_tweet"
 
 
-    - name: second_tweet
+      - name: second_tweet
         ref: twitter.update_status
         parameters:
             timeout: 87000
@@ -44,7 +48,7 @@ chain:
             media: ["{{featuredimage}}"]
         on-success: "second_sleep"
 
-    - name: second_sleep
+      - name: second_sleep
         ref: core.pause
         parameters:
             timeout: 87000
@@ -52,10 +56,9 @@ chain:
         on-success: "second_sleep"
 
 
-    - name: third_tweet
+      - name: third_tweet
         ref: twitter.update_status
         parameters:
             timeout: 87000
             status: "♻♻ Post: {{title}} {{link }}"
             media: ["{{featuredimage}}"]
-        on-success: "third_sleep"
