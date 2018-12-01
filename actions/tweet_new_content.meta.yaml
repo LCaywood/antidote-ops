@@ -15,3 +15,6 @@ parameters:
     link:
         type: string
         required: true
+    account:
+        type: string
+        required: true

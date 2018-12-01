@@ -1,0 +1,17 @@
+---
+name: tweet_new_content_nrelabs
+description: Tweet new content from @NRELabs
+trigger:
+  type: antidoteops.new_content
+criteria:
+    trigger.link:
+        type: "contains"
+        pattern: "networkreliability.engineering"
+action:
+  ref: antidoteops.tweet_new_content
+  parameters:
+    account: mierdin  #TODO(mierdin): still tweeting from Mierdin for now, while I wait for a dev account for NRE Labs
+    link: "{{ trigger.link }}"
+    featuredimage: "{{ trigger.featuredimage }}"
+    title: "{{ trigger.title }}"
+enabled: true

@@ -27,6 +27,7 @@ chain:
       - name: first_tweet
         ref: twitter.update_status
         parameters:
+            account: "{{account}}"
             timeout: 87000
             status: "[New Post] {{title}} {{link }}"
             media: ["{{featuredimage}}"]
@@ -42,6 +43,7 @@ chain:
       - name: second_tweet
         ref: twitter.update_status
         parameters:
+            account: "{{account}}"
             timeout: 87000
             status: "♻ Post: {{title}} {{link }}"
             media: ["{{featuredimage}}"]
@@ -57,6 +59,7 @@ chain:
       - name: third_tweet
         ref: twitter.update_status
         parameters:
+            account: "{{account}}"
             timeout: 87000
             status: "♻♻ Post: {{title}} {{link }}"
             media: ["{{featuredimage}}"]
