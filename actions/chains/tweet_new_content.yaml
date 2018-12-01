@@ -21,14 +21,13 @@ chain:
       - name: wait_until_pubtime
         ref: antidoteops.wait_until_pubtime
         parameters:
-            timeout: 87000
+            timeout: 604800
         on-success: "first_tweet"
 
       - name: first_tweet
         ref: twitter.update_status
         parameters:
             account: "{{account}}"
-            timeout: 87000
             status: "[New Post] {{title}} {{link }}"
             media: ["{{featuredimage}}"]
         on-success: "first_sleep"
@@ -36,7 +35,7 @@ chain:
       - name: first_sleep
         ref: antidoteops.wait_until_pubtime
         parameters:
-            timeout: 87000
+            timeout: 604800
         on-success: "second_tweet"
 
 
@@ -44,7 +43,6 @@ chain:
         ref: twitter.update_status
         parameters:
             account: "{{account}}"
-            timeout: 87000
             status: "♻ Post: {{title}} {{link }}"
             media: ["{{featuredimage}}"]
         on-success: "second_sleep"
@@ -52,7 +50,7 @@ chain:
       - name: second_sleep
         ref: antidoteops.wait_until_pubtime
         parameters:
-            timeout: 87000
+            timeout: 604800
         on-success: "second_sleep"
 
 
@@ -60,6 +58,5 @@ chain:
         ref: twitter.update_status
         parameters:
             account: "{{account}}"
-            timeout: 87000
             status: "♻♻ Post: {{title}} {{link }}"
             media: ["{{featuredimage}}"]
