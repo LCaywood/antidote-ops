@@ -16,9 +16,9 @@
 
 
 ---
-default: "first_tweet"
+default: "first_sleep"
 chain:
-      - name: wait_until_pubtime
+      - name: first_sleep
         ref: antidoteops.wait_until_pubtime
         parameters:
             timeout: 604800
@@ -30,9 +30,9 @@ chain:
             account: "{{account}}"
             status: "[New Post] {{title}} {{link }}"
             media: ["{{featuredimage}}"]
-        on-success: "first_sleep"
+        on-success: "second_sleep"
 
-      - name: first_sleep
+      - name: second_sleep
         ref: antidoteops.wait_until_pubtime
         parameters:
             timeout: 604800
@@ -45,13 +45,13 @@ chain:
             account: "{{account}}"
             status: "♻ Post: {{title}} {{link }}"
             media: ["{{featuredimage}}"]
-        on-success: "second_sleep"
+        on-success: "third_sleep"
 
-      - name: second_sleep
+      - name: third_sleep
         ref: antidoteops.wait_until_pubtime
         parameters:
             timeout: 604800
-        on-success: "second_sleep"
+        on-success: "third_tweet"
 
 
       - name: third_tweet
