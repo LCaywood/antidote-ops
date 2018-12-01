@@ -1,9 +1,9 @@
 ---
-  name: "wait_until"
+  name: "wait_until_pubtime"
   runner_type: "python-script"
-  description: "Action to wait for a certain date/time."
+  description: "Pauses until the next publishing date/time"
   enabled: true
-  entry_point: "wait_until.py"
+  entry_point: "wait_until_pubtime.py"
   parameters:
     futuretime:
       type: "string"

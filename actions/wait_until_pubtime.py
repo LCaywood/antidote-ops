@@ -13,14 +13,22 @@ __all__ = [
 def get_next_pubtime():
 
     now = datetime.utcnow()
-    pubtime = now.replace(hour=17, minute=0, second=0, microsecond=0)
 
-    # if before publishing time, return that time
-    if now < pubtime:
-        return pubtime
-    else:
-        # After publishing time, so go forward a day
+    # Set to hour 17 (9AM Pacific) as the publishing time.
+    pubtime = now.replace(hour=17)
+
+    # if it is currently after the publishing time, roll forward to the next day.
+    if now > pubtime:
         return pubtime + timedelta(days=1)
+
+    # Don't publish on Friday through Sunday. Roll forward the necessary number of days to make
+    # it publish on Monday.
+    if pubtime.weekday() in [4,5,6]:
+        daysforward = 7 - pubtime.weekday()
+        pubtime = pubtime + timedelta(days=daysforward)
+
+    return pubtime
+
 
 class WaitUntilAction(Action):
 
@@ -31,6 +39,7 @@ class WaitUntilAction(Action):
         self.logger.info('Waiting until %s' % next_pubtime)
         print('Waiting until %s' % next_pubtime)
 
+        # DEPRECATED - still here, but will likely remove this in the near future.
         if futuretime:
             next_pubtime = datetime.strptime(futuretime, "%Y-%m-%dT%H:%M:%S")
         

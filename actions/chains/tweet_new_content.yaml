@@ -19,7 +19,7 @@
 default: "first_tweet"
 chain:
       - name: wait_until_pubtime
-        ref: antidoteops.wait_until
+        ref: antidoteops.wait_until_pubtime
         parameters:
             timeout: 87000
         on-success: "first_tweet"
@@ -33,10 +33,9 @@ chain:
         on-success: "first_sleep"
 
       - name: first_sleep
-        ref: core.pause
+        ref: antidoteops.wait_until_pubtime
         parameters:
             timeout: 87000
-            max_pause: 86400
         on-success: "second_tweet"
 
 
@@ -49,10 +48,9 @@ chain:
         on-success: "second_sleep"
 
       - name: second_sleep
-        ref: core.pause
+        ref: antidoteops.wait_until_pubtime
         parameters:
             timeout: 87000
-            max_pause: 86400
         on-success: "second_sleep"
 
 
