@@ -14,4 +14,5 @@ action:
     link: "{{ trigger.link }}"
     featuredimage: "{{ trigger.featuredimage }}"
     title: "{{ trigger.title }}"
+    timeout: 604800
 enabled: true
