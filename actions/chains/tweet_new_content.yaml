@@ -30,6 +30,13 @@ chain:
             account: "{{account}}"
             status: "[New Post] {{title}} {{link }}"
             media: ["{{featuredimage}}"]
+        on-success: "first_retweet"
+
+      - name: first_retweet
+        ref: twitter.retweet
+        parameters:
+            accounts: "{{rtaccounts}}"
+            tweet_id: "{{ first_tweet.result.status_id }}"
         on-success: "second_sleep"
 
       - name: second_sleep
@@ -38,13 +45,19 @@ chain:
             timeout: 604800
         on-success: "second_tweet"
 
-
       - name: second_tweet
         ref: twitter.update_status
         parameters:
             account: "{{account}}"
-            status: "♻ Post: {{title}} {{link }}"
+            status: "♻ ICYMI: {{title}} {{link }}"
             media: ["{{featuredimage}}"]
+        on-success: "second_retweet"
+
+      - name: second_retweet
+        ref: twitter.retweet
+        parameters:
+            accounts: "{{rtaccounts}}"
+            tweet_id: "{{ second_tweet.result.status_id }}"
         on-success: "third_sleep"
 
       - name: third_sleep
@@ -58,5 +71,5 @@ chain:
         ref: twitter.update_status
         parameters:
             account: "{{account}}"
-            status: "♻♻ Post: {{title}} {{link }}"
+            status: "♻♻ ICYMI: {{title}} {{link }}"
             media: ["{{featuredimage}}"]

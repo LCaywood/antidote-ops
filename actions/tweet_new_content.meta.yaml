@@ -18,3 +18,7 @@ parameters:
     account:
         type: string
         required: true
+    rtaccounts:
+        type: array
+        required: false
+        default: []

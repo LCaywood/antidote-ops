@@ -10,8 +10,9 @@ criteria:
 action:
   ref: antidoteops.tweet_new_content
   parameters:
-    account: mierdin  #TODO(mierdin): still tweeting from Mierdin for now, while I wait for a dev account for NRE Labs
+    account: nrelabs
     link: "{{ trigger.link }}"
     featuredimage: "{{ trigger.featuredimage }}"
     title: "{{ trigger.title }}"
+    rtaccounts: ["mierdin"]
 enabled: true
