@@ -1,0 +1,6 @@
+---
+  name: "get_publishing_schedule"
+  runner_type: "python-script"
+  description: "Retrieve publishing schedule as list of datetime strings"
+  enabled: true
+  entry_point: "get_publishing_schedule.py"

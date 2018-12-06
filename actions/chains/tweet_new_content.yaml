@@ -16,12 +16,18 @@
 
 
 ---
-default: "first_sleep"
+default: "get_schedule"
 chain:
+
+      - name: get_schedule
+        ref: antidoteops.get_publishing_schedule
+        on-success: "first_sleep"
+
       - name: first_sleep
-        ref: antidoteops.wait_until_pubtime
+        ref: antidoteops.wait_until
         parameters:
             timeout: 604800
+            timestr: "{{ get_schedule.result[0] }}"
         on-success: "first_tweet"
 
       - name: first_tweet
@@ -40,9 +46,10 @@ chain:
         on-success: "second_sleep"
 
       - name: second_sleep
-        ref: antidoteops.wait_until_pubtime
+        ref: antidoteops.wait_until
         parameters:
             timeout: 604800
+            timestr: "{{ get_schedule.result[1] }}"
         on-success: "second_tweet"
 
       - name: second_tweet
@@ -61,11 +68,11 @@ chain:
         on-success: "third_sleep"
 
       - name: third_sleep
-        ref: antidoteops.wait_until_pubtime
+        ref: antidoteops.wait_until
         parameters:
             timeout: 604800
+            timestr: "{{ get_schedule.result[2] }}"
         on-success: "third_tweet"
-
 
       - name: third_tweet
         ref: twitter.update_status

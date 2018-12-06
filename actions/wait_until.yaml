@@ -1,0 +1,11 @@
+---
+  name: "wait_until"
+  runner_type: "python-script"
+  description: "Pauses until the time specified time"
+  enabled: true
+  entry_point: "wait_until.py"
+  parameters:
+    timestr:
+      type: "string"
+      description: "Datetime to wait until. See python script for formatting"
+      required: true
