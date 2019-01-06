@@ -1,0 +1,23 @@
+---
+name: tweet_blogging
+description: Tweet blogging
+trigger:
+  type: "core.st2.CronTimer"
+  parameters:
+      timezone: "UTC"
+      day_of_week: 2
+      hour: 19
+      minute: 0
+      second: 0
+criteria: {}
+action:
+  ref: twitter.update_status
+  parameters:
+      account: "nrelabs"
+      status: |
+        The NRE Blog is always looking for guest writers!
+        Consider opening a pull request with your own article about your journey to NRE!
+        https://github.com/nre-learning/nre-blog/blob/master/README.md
+
+      media: ["https://raw.githubusercontent.com/nre-learning/nre-blog/master/static/images/blog.png"]
+enabled: true

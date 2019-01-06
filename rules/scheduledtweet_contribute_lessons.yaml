@@ -1,0 +1,21 @@
+---
+name: tweet_contributing
+description: Tweet contributing guide
+trigger:
+  type: "core.st2.CronTimer"
+  parameters:
+      timezone: "UTC"
+      day_of_week: 0
+      hour: 19
+      minute: 0
+      second: 0
+criteria: {}
+action:
+  ref: twitter.update_status
+  parameters:
+      account: "nrelabs"
+      status: |
+        It's easier than ever to contribute your own lessons to NRE Labs. Check our our curriculum contribution guide, and get your lesson published! https://antidoteproject.readthedocs.io/en/latest/contributing/curriculum.html
+
+      media: ["https://raw.githubusercontent.com/nre-learning/nre-blog/master/static/images/contributing.png"]
+enabled: true
