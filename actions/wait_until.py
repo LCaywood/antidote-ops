@@ -19,4 +19,4 @@ class WaitUntilAction(Action):
             now = datetime.utcnow()
             if now > next_pubtime:
                 break
-            time.sleep(5000)
+            time.sleep(5)

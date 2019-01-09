@@ -37,7 +37,7 @@
       set_version:
         action: core.noop
         publish:
-          docker_version: "release-v{{ version_strip_patch(_.version) }}"
+          docker_version: "release-v{{ _.version }}"
           git_version: "v{{ _.version }}"
         on-success:
             - wait_for_images

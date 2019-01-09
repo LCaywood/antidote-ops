@@ -30,7 +30,8 @@ class GetPublishingSchedule(Action):
         pubtime = now.replace(hour=17, minute=0, second=0)
 
         # if it is currently after the publishing time, roll forward to the next day.
-        pubtime = pubtime + timedelta(days=1)
+        if pubtime < now:
+            pubtime = pubtime + timedelta(days=1)
 
         # get first date and put into schedule
         pubtime = self.skipweekend(pubtime)
