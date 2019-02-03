@@ -7,9 +7,32 @@ antidoteops.release:
 
     tasks:
 
+      determine_version:
+        action: core.noop
+        on-success:
+            - set_latest: <% $.version = 'latest' %>
+            - set_version: <% not $.version = 'latest' %>
+
+      set_latest:
+        action: core.noop
+        publish:
+          docker_version: latest
+          git_version: master
+        on-success:
+            - release_all_repos
+
+      set_version:
+        action: core.noop
+        publish:
+          docker_version: "release-v{{ _.version }}"
+          git_version: "v{{ _.version }}"
+        on-success:
+            - release_all_repos
+
         release_all_repos:
             with-items: repo in <% $.repos %>
             action: antidoteops.prep_release
             input:
                 project: <% $.repo %>
-                version: <% $.version %>
+                git_version: <% $.git_version %>
+                docker_version: <% $.docker_version %>

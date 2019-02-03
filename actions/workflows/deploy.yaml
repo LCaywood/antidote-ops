@@ -32,7 +32,8 @@
           docker_version: latest
           git_version: master
         on-success:
-            - wait_for_images
+            - wait_for_antidoteweb
+            - wait_for_syringe
 
       set_version:
         action: core.noop
@@ -40,17 +41,24 @@
           docker_version: "release-v{{ _.version }}"
           git_version: "v{{ _.version }}"
         on-success:
-            - wait_for_images
+            - wait_for_antidoteweb
+            - wait_for_syringe
 
-      wait_for_images:
+      wait_for_antidoteweb:
+        action: antidoteops.wait_for_docker_image
+        input:
+          image: antidote-web
+          version: "{{ _.docker_version }}"
+          tries: "5"
+          delay: "10"
+
+      wait_for_syringe:
         action: antidoteops.wait_for_docker_image
         input:
           image: syringe
           version: "{{ _.docker_version }}"
           tries: "5"
           delay: "10"
-        on-success:
-            - patch_syringe
 
       # TODO(mierdin): Update platform manifests in Git too so they're not out of sync.
       # You might also consider updating them and applying them to ENSURE they're in sync.

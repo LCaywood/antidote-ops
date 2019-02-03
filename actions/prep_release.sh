@@ -3,8 +3,9 @@ set -e
 
 PROJECT=$2
 VERSION=$3
-FORK=$4
-LOCAL_REPO=$5
+DOCKER_VERSION=$4
+FORK=$5
+LOCAL_REPO=$6
 GIT_REPO="git@github.com:${FORK}/${PROJECT}.git"
 SHORT_VERSION=`echo ${VERSION} | cut -d "." -f1-2`
 # Using version for now. Each minor version gets its own branch.
@@ -90,6 +91,15 @@ if [[ -z "${TAGGED}" ]]; then
     git push origin ${BRANCH}
 else
     echo "Tag ${TAGGED_VERSION} already exists."
+fi
+
+COMMIT_SHA=$(git rev-parse HEAD)
+if [ "$PROJECT" = "antidote-web" ]; then
+    docker build --build-arg COMMIT_SHA=$COMMIT_SHA -t antidotelabs/antidote-web:${DOCKER_VERSION} -f Dockerfile .
+    docker push antidotelabs/antidote-web:${DOCKER_VERSION}
+elif [ "$PROJECT" = "syringe" ]; then
+	docker build -t antidotelabs/syringe:${DOCKER_VERSION} .
+	docker push antidotelabs/syringe:${DOCKER_VERSION}
 fi
 
 # CLEANUP
