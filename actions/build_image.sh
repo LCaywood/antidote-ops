@@ -35,7 +35,6 @@ git clone ${GIT_REPO} ${LOCAL_REPO}
 cd ${LOCAL_REPO}
 echo "Currently at directory `pwd`..."
 
-
 # SET VERSION AND DATE IN CHANGELOG ON MASTER
 DATE=`date +%s`
 RELEASE_DATE=`date +"%B %d, %Y"`
@@ -43,30 +42,6 @@ CHANGELOG_FILE="CHANGELOG.md"
 RELEASE_STRING="${VERSION} - ${RELEASE_DATE}"
 DASH_HEADER_CMD="printf '%.0s-' {1..${#RELEASE_STRING}}"
 DASH_HEADER=$(/bin/bash -c "${DASH_HEADER_CMD}")
-
-if [[ ! -e "${CHANGELOG_FILE}" ]]; then
-    >&2 echo "ERROR: Changelog ${CHANGELOG_FILE} does not exist."
-    exit 1
-fi
-
-CHANGELOG_VERSION_MATCH=`grep "${VERSION} - " ${CHANGELOG_FILE} || true`
-if [[ -z "${CHANGELOG_VERSION_MATCH}" ]]; then
-    echo "Setting version in ${CHANGELOG_FILE} to ${VERSION}..."
-    sed -i "s/^## In development/## ${RELEASE_STRING}/Ig" ${CHANGELOG_FILE}
-
-    if [ "$PROJECT" = "antidote" ]; then
-        sed -i "/${RELEASE_STRING}/i \## In development\n\n### Curriculum\n\n### Other\n\n" ${CHANGELOG_FILE}
-    else
-        sed -i "/${RELEASE_STRING}/i \## In development\n\n" ${CHANGELOG_FILE}
-    fi
-fi
-
-MODIFIED=`git status | grep modified || true`
-if [[ ! -z "${MODIFIED}" ]]; then
-    git add ${CHANGELOG_FILE}
-    git commit -qm "Update changelog info for release - ${VERSION}"
-    git push origin master
-fi
 
 # CHECK IF BRANCH EXISTS
 BRANCH_EXISTS=`git ls-remote --heads ${GIT_REPO} | grep refs/heads/${BRANCH} || true`
@@ -79,18 +54,13 @@ else
     git checkout -b ${BRANCH} origin/master
 fi
 
-
-
-# CHECK IF TAG EXISTS
-TAGGED=`git tag -l ${TAGGED_VERSION} || true`
-if [[ -z "${TAGGED}" ]]; then
-    # TAG RELEASE
-    echo "Tagging release ${TAGGED_VERSION} for ${PROJECT}..."
-    git tag -a ${TAGGED_VERSION} -m "Creating tag ${TAGGED_VERSION} for branch ${BRANCH}"
-    git push origin ${TAGGED_VERSION}
-    git push origin ${BRANCH}
-else
-    echo "Tag ${TAGGED_VERSION} already exists."
+COMMIT_SHA=$(git rev-parse HEAD)
+if [ "$PROJECT" = "antidote-web" ]; then
+    docker build --build-arg COMMIT_SHA=$COMMIT_SHA -t antidotelabs/antidote-web:${DOCKER_VERSION} -f Dockerfile .
+    docker push antidotelabs/antidote-web:${DOCKER_VERSION}
+elif [ "$PROJECT" = "syringe" ]; then
+	docker build -t antidotelabs/syringe:${DOCKER_VERSION} .
+	docker push antidotelabs/syringe:${DOCKER_VERSION}
 fi
 
 # CLEANUP
