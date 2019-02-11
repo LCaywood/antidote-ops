@@ -29,10 +29,10 @@ antidoteops.release:
         on-success:
             - release_all_repos
 
-        release_all_repos:
-            with-items: repo in <% $.repos %>
-            action: antidoteops.prep_release
-            input:
-                project: <% $.repo %>
-                git_version: <% $.git_version %>
-                docker_version: <% $.docker_version %>
+      release_all_repos:
+          with-items: repo in <% $.repos %>
+          action: antidoteops.prep_release
+          input:
+              project: <% $.repo %>
+              git_version: <% $.git_version %>
+              docker_version: <% $.docker_version %>
