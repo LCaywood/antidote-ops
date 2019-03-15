@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-GITHUB_TOKEN=$2
-RELEASE_VERSION=$3
+GITHUB_TOKEN=$1
+RELEASE_VERSION=$2
 
 command -v jq > /dev/null
 if [ $? -ne 0 ]; then
@@ -21,6 +21,7 @@ upload() {
     "$UPLOAD_URL?name=$(basename $FILE)"
 }
 
+mkdir -p /go/src/github.com/nre-learning/ && cd /go/src/github.com/nre-learning/
 rm -rf syringe/
 git clone --branch $RELEASE_VERSION https://github.com/nre-learning/syringe && cd syringe/
 
