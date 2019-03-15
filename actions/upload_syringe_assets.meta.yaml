@@ -1,0 +1,18 @@
+
+---
+name: upload_syringe_assets
+description: Upload Syringe binaries for a release
+enabled: true
+runner_type: local-shell-script
+entry_point: upload_syringe_assets.sh
+parameters:
+    github_token:
+        type: string
+        secret: yes
+        required: yes
+        position: 0
+    release_version:
+        type: string
+        description: Version to use for the release. Should include the patch e.g. v0.1.0
+        required: true
+        position: 1
