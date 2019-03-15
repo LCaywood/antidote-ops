@@ -23,4 +23,4 @@ antidoteops.create_gh_release:
           body: "{{ _.changelog_contents }}"
           name: "{{ _.version }}"
           repository: "{{ _.repo }}"
-          api_user:
+          api_user: ""

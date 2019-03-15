@@ -4,6 +4,7 @@ antidoteops.release:
     input:
         - version
         - repos
+        - docker_repos
 
     tasks:
 

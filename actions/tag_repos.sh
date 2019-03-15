@@ -9,9 +9,9 @@ LOCAL_REPO=$6
 GIT_REPO="git@github.com:${FORK}/${PROJECT}.git"
 SHORT_VERSION=`echo ${VERSION} | cut -d "." -f1-2`
 # Using version for now. Each minor version gets its own branch.
-BRANCH="release-v${VERSION}"
+BRANCH="release-${VERSION}"
 # BRANCH="release-v${SHORT_VERSION}"
-TAGGED_VERSION="v${VERSION}"
+TAGGED_VERSION="${VERSION}"
 CWD=`pwd`
 
 git config --global user.email "abathur@networkrelibility.engineering"
