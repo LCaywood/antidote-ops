@@ -1,0 +1,26 @@
+version: '2.0'
+antidoteops.create_gh_release:
+    description: Create a github release for a repo
+    input:
+        - version
+        - repo
+
+    tasks:
+
+      get_changelog:
+        action: core.local
+        publish:
+          changelog_contents: latest
+          git_version: master
+        input:
+          cmd: 'curl https://raw.githubusercontent.com/nre-learning/{{ _.repo }}/master/CHANGELOG.md | sed -n "/## {{ _.version }}/,/^## /p" | head -n-1'
+        on-success:
+            - create_release_in_github
+
+      create_release_in_github:
+        action: github.create_release
+        input:
+          body: "{{ _.changelog_contents }}"
+          name: "{{ _.version }}"
+          repository: "{{ _.repo }}"
+          api_user:

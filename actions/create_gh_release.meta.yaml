@@ -1,0 +1,15 @@
+---
+name: create_gh_release
+runner_type: mistral-v2
+description: Create a github release for a repo
+enabled: true
+entry_point: workflows/create_gh_release.yaml
+parameters:
+    version:
+        type: string
+        description: Version of the release - i.e. v0.3.0. Exactly as it is in the changelog
+        required: true
+    repo:
+        type: string
+        description: The repo to create a release for
+        required: true

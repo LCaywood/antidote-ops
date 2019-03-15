@@ -1,30 +1,35 @@
 
 ---
-name: build_image
-description: Build a docker image
+name: tag_repos
+description: Prepare a repo for release
 enabled: true
 runner_type: local-shell-script
-entry_point: build_image.sh
+entry_point: tag_repos.sh
 parameters:
     project:
         type: string
         description: Project name
         required: yes
         position: 0
-    version:
+    git_version:
         type: string
         description: Version to use for the release. Should include the patch e.g. 0.1.0
         required: true
         position: 1
+    docker_version:
+        type: string
+        description: Version to use for the release. Should include the patch e.g. 0.1.0
+        required: true
+        position: 2
     fork:
         type: string
         description: Fork to use
         default: nre-learning
-        position: 2
+        position: 3
     local_repo:
         type: string
         description: Location where to clone the repo. Programmatically determined if not provided.
-        position: 3
+        position: 4
     dir:
         immutable: true
         default: /home/stanley/

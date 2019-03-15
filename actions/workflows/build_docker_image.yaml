@@ -1,0 +1,24 @@
+
+
+version: '2.0'
+antidoteops.build_docker_image:
+    description: Build and push an antidote project's docker image
+    input:
+        - version
+        - repo
+
+    tasks:
+      clone_repo:
+        action: git.clone
+        input:
+          ref: "{{ _.version }}"
+          source: "https://github.com/nre-learning/{{ _.repo }}.git"
+          destination: "/tmp/{{ _.repo }}"
+          hosts: localhost
+        on-success:
+            - build_image
+
+      build_image:
+        action: core.local
+        input:
+          cmd: "cd /tmp/{{ _.repo }} && make docker TARGET_VERSION={{ _.version }}"

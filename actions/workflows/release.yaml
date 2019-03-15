@@ -7,6 +7,9 @@ antidoteops.release:
 
     tasks:
 
+      # Should add a check here to ensure that the version input is exactly semver compatible,
+      # excluding any leading "v" since this workflow does that for us.
+
       determine_version:
         action: core.noop
         on-success:
@@ -19,7 +22,7 @@ antidoteops.release:
           docker_version: latest
           git_version: master
         on-success:
-            - release_all_repos
+            - tag_all_repos
 
       set_version:
         action: core.noop
@@ -27,12 +30,44 @@ antidoteops.release:
           docker_version: "release-v{{ _.version }}"
           git_version: "v{{ _.version }}"
         on-success:
-            - release_all_repos
+            - tag_all_repos
 
-      release_all_repos:
-          with-items: repo in <% $.repos %>
-          action: antidoteops.prep_release
-          input:
-              project: <% $.repo %>
-              git_version: <% $.git_version %>
-              docker_version: <% $.docker_version %>
+      # Goes through and creates git tags for all repos, and rotates changelog
+      tag_all_repos:
+        with-items: repo in <% $.repos %>
+        action: antidoteops.tag_repos
+        input:
+            project: <% $.repo %>
+            git_version: <% $.git_version %>
+            docker_version: <% $.docker_version %>
+        on-success:
+            - create_release
+
+      # Create github release for each repo, containing the text 
+      create_release:
+        with-items: repo in <% $.repos %>
+        action: antidoteops.create_gh_release
+        input:
+          repo: nre-learning/<% $.repo %>
+          version: <% $.git_version %>
+        on-success:
+            - compile_and_upload_syringe_assets
+
+      # Compile Syringe for all supported platforms and attach binaries as assets to this release
+      compile_and_upload_syringe_assets:
+        action: core.local
+        timeout: 1200
+        input:
+            env:
+              GITHUB_TOKEN: "{{st2kv.system.github_oauth_token}}"
+              RELEASE_VERSION: <% $.git_version %>
+            cmd: "docker run antidotelabs/syringebuilder /compile_and_upload.sh $GITHUB_TOKEN $RELEASE_VERSION"
+        on-success:
+            - publish_docker_images
+
+      publish_docker_images:
+        with-items: repo in <% $.docker_repos %>
+        action: antidoteops.build_docker_image
+        input:
+          repo: <% $.repo %>
+          version: <% $.docker_version %>

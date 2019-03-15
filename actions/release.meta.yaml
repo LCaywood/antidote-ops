@@ -19,3 +19,12 @@ parameters:
             - syringe
         description: The list of projects to stage release.
         required: true
+    docker_repos:
+        type: array
+        items:
+            type: string
+        default:
+            - antidote-web
+            - syringe
+        description: The list of projects that have corresponding docker images
+        required: true

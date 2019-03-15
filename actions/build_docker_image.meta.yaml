@@ -1,0 +1,15 @@
+---
+name: build_docker_image
+runner_type: mistral-v2
+description: Build and push an antidote project's docker image
+enabled: true
+entry_point: workflows/build_docker_image.yaml
+parameters:
+    version:
+        type: string
+        description: Version of the release - i.e. v0.3.0. Exactly as it is in the changelog
+        required: true
+    repo:
+        type: string
+        description: The repo to create a release for
+        required: true
