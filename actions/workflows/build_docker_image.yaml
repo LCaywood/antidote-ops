@@ -20,8 +20,7 @@ antidoteops.build_docker_image:
       remove_existing:
         action: core.local
         input:
-          cmd: rm -rf /tmp/{{ _.repo }}
-          sudo: yes
+          cmd: sudo rm -rf /tmp/{{ _.repo }}
         on-success:
           - clone_repo
 
