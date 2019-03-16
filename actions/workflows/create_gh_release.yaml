@@ -12,7 +12,7 @@ antidoteops.create_gh_release:
         publish:
           changelog_contents: latest
         input:
-          cmd: 'curl https://raw.githubusercontent.com/nre-learning/{{ _.repo }}/master/CHANGELOG.md | sed -n "/## {{ _.version }}/,/^## /p" | head -n-1'
+          cmd: 'curl https://raw.githubusercontent.com/nre-learning/{{ _.repo }}/master/CHANGELOG.md | sed -n "/## {{ _.version }}/,/^## /p" | head -n-1 | markdown | tr -d "\n"'
         on-success:
             - create_release_in_github
 

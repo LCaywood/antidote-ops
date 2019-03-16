@@ -8,6 +8,23 @@ antidoteops.build_docker_image:
         - repo
 
     tasks:
+
+      # Just a safety measure to make sure we don't wipe out /tmp
+      check_not_empty:
+        action: core.local
+        input:
+          cmd: REPO={{ _.repo }} if [ -z "$REPO" ]; then exit 1; fi
+        on-success:
+          - remove_existing
+
+      remove_existing:
+        action: core.local
+        input:
+          cmd: rm -rf /tmp/{{ _.repo }}
+          sudo: yes
+        on-success:
+          - clone_repo
+
       clone_repo:
         action: git.clone
         input:
