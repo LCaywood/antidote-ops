@@ -11,6 +11,16 @@ antidoteops.release:
       # Should add a check here to ensure that the version input is exactly semver compatible,
       # excluding any leading "v" since this workflow does that for us.
 
+      # TODO(mierdin): should execute a `make test` for syringe here so we know it's passing test before we release.
+      # For now we'll rely on the documented process.
+
+      # TODO expand to other repos when they have proper CI
+      check_health:
+        action: core.local
+        cmd: if [ $(curl https://api.github.com/repos/nre-learning/syringe/status/master | jq .state) = '"failure"' ]; then exit 1; fi
+        on-success:
+            - determine_version
+
       determine_version:
         action: core.noop
         on-success:
