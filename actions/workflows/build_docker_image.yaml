@@ -13,7 +13,7 @@ antidoteops.build_docker_image:
       check_not_empty:
         action: core.local
         input:
-          cmd: REPO={{ _.repo }} if [ -z "$REPO" ]; then exit 1; fi
+          cmd: if [ -z "{{ _.repo }}" ]; then exit 1; fi
         on-success:
           - remove_existing
 
