@@ -18,9 +18,10 @@ antidoteops.build_docker_image:
           - remove_existing
 
       remove_existing:
-        action: core.local
+        action: core.remote
         input:
           cmd: sudo rm -rf /tmp/{{ _.repo }}
+          hosts: localhost
         on-success:
           - clone_repo
 
@@ -35,6 +36,7 @@ antidoteops.build_docker_image:
             - build_image
 
       build_image:
-        action: core.local
+        action: core.remote
         input:
           cmd: "cd /tmp/{{ _.repo }} && make docker TARGET_VERSION={{ _.version }}"
+          hosts: localhost
