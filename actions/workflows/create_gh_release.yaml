@@ -11,7 +11,6 @@ antidoteops.create_gh_release:
         action: core.local
         publish:
           changelog_contents: latest
-          git_version: master
         input:
           cmd: 'curl https://raw.githubusercontent.com/nre-learning/{{ _.repo }}/master/CHANGELOG.md | sed -n "/## {{ _.version }}/,/^## /p" | head -n-1'
         on-success:
@@ -20,7 +19,7 @@ antidoteops.create_gh_release:
       create_release_in_github:
         action: github.create_release
         input:
-          body: "{{ _.changelog_contents }}"
+          body: <% task(get_changelog).result.stdout %>
           name: "{{ _.version }}"
-          repository: "{{ _.repo }}"
+          repository: "nre-learning/{{ _.repo }}"
           api_user: ""
