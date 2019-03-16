@@ -17,7 +17,8 @@ antidoteops.release:
       # TODO expand to other repos when they have proper CI
       check_health:
         action: core.local
-        cmd: if [ $(curl https://api.github.com/repos/nre-learning/syringe/status/master | jq .state) = '"failure"' ]; then exit 1; fi
+        input:
+          cmd: if [ $(curl https://api.github.com/repos/nre-learning/syringe/status/master | jq .state) = '"failure"' ]; then exit 1; fi
         on-success:
             - determine_version
 
