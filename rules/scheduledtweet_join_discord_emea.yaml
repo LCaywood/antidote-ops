@@ -1,0 +1,24 @@
+---
+name: scheduledtweet_join_discord_emea
+description: Tweet discord EMEA
+trigger:
+  type: "core.st2.CronTimer"
+  parameters:
+      timezone: "UTC"
+      day_of_week: 3
+      hour: 9
+      minute: 0
+      second: 0
+criteria: {}
+action:
+  ref: twitter.update_status
+  parameters:
+      account: "nrelabs"
+      status: |
+        Join the NRE Community Discord, and chat live with fellow reliability enthusiasts,
+        and maintainers of the Antidote project that powers NRE Labs.
+
+        https://discord.gg/fRuSUyD
+
+      media: ["https://raw.githubusercontent.com/nre-learning/nre-blog/master/static/images/nrelabs-discord.png"]
+enabled: true
