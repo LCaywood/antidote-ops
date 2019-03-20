@@ -40,3 +40,4 @@ antidoteops.build_docker_image:
         input:
           cmd: "cd /tmp/{{ _.repo }} && make docker TARGET_VERSION={{ _.version }}"
           hosts: localhost
+          timeout: 1200
