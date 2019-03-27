@@ -15,12 +15,12 @@ antidoteops.release:
       # For now we'll rely on the documented process.
 
       # TODO expand to other repos when they have proper CI
-      check_health:
-        action: core.local
-        input:
-          cmd: if [ $(curl https://api.github.com/repos/nre-learning/syringe/status/master | jq .state) = '"failure"' ]; then exit 1; fi
-        on-success:
-            - determine_version
+      #check_health:
+      #  action: core.local
+      #  input:
+      #    cmd: if [ $(curl https://api.github.com/repos/nre-learning/syringe/status/master | jq .state) = '"failure"' ]; then exit 1; fi
+      #  on-success:
+      #      - determine_version
 
       determine_version:
         action: core.noop
@@ -47,6 +47,7 @@ antidoteops.release:
       # Goes through and creates git tags for all repos, and rotates changelog
       tag_all_repos:
         with-items: repo in <% $.repos %>
+        concurrency: 1
         action: antidoteops.tag_repos
         input:
             project: <% $.repo %>
@@ -58,6 +59,7 @@ antidoteops.release:
       # Create github release for each repo, containing the text 
       create_release:
         with-items: repo in <% $.repos %>
+        concurrency: 1
         action: antidoteops.create_gh_release
         input:
           repo: <% $.repo %>
