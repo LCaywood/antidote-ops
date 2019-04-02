@@ -1,0 +1,24 @@
+---
+name: scheduledtweet_community_amer
+description: Tweet discord AMER
+trigger:
+  type: "core.st2.CronTimer"
+  parameters:
+      timezone: "UTC"
+      day_of_week: 1
+      hour: 19
+      minute: 0
+      second: 0
+criteria: {}
+action:
+  ref: twitter.update_status
+  parameters:
+      account: "nrelabs"
+      status: |
+
+        There are a number of ways to get involved with the Antidote and NRE Labs community. Check out our mailing list, github repositories, and more:
+
+        https://antidoteproject.readthedocs.io/en/latest/community.html
+
+      media: ["https://raw.githubusercontent.com/nre-learning/nre-blog/master/static/images/community.jpg"]
+enabled: true

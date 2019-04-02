@@ -21,4 +21,4 @@ action:
         https://discord.gg/fRuSUyD
 
       media: ["https://raw.githubusercontent.com/nre-learning/nre-blog/master/static/images/nrelabs-discord.png"]
-enabled: true
+enabled: false
