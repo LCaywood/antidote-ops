@@ -1,6 +1,6 @@
 ---
 name: scheduledtweet_community_amer
-description: Tweet discord AMER
+description: Tweet community AMER
 trigger:
   type: "core.st2.CronTimer"
   parameters:
@@ -16,7 +16,8 @@ action:
       account: "nrelabs"
       status: |
 
-        There are a number of ways to get involved with the Antidote and NRE Labs community. Check out our mailing list, github repositories, and more:
+        There are a number of ways to get involved with the Antidote and NRE Labs community.
+        Check out our forums, github repositories, and more:
 
         https://antidoteproject.readthedocs.io/en/latest/community.html
 

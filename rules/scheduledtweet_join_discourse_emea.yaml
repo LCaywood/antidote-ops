@@ -1,0 +1,26 @@
+---
+name: scheduledtweet_join_discourse_emea
+description: Tweet discourse EMEA
+trigger:
+  type: "core.st2.CronTimer"
+  parameters:
+      timezone: "UTC"
+      day_of_week: 3
+      hour: 9
+      minute: 0
+      second: 0
+criteria: {}
+action:
+  ref: twitter.update_status
+  parameters:
+      account: "nrelabs"
+      status: |
+        The NRE Community Forums are your one-stop shop for asking questions about NRE Labs, collaborating
+        on the Antidote project, and general discussions about automation and reliability engineering.
+
+        Join now!
+
+        https://community.networkreliability.engineering
+
+      media: ["https://raw.githubusercontent.com/nre-learning/nre-blog/master/static/images/discourse.png"]
+enabled: true
