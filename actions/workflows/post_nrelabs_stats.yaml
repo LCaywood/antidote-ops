@@ -1,0 +1,12 @@
+version: '2.0'
+antidoteops.post_nrelabs_stats:
+    description: Post NRE Labs stats to slack
+    tasks:
+      get_stats:
+        action: antidoteops.get_influx_report
+        on-success:
+            - post_to_slack
+      post_to_slack:
+        action: slack.post_message
+        input:
+          message: "{{ task('get_stats').result.stdout.replace('\\\\n', '\\n') }}"

@@ -1,0 +1,6 @@
+---
+name: post_nrelabs_stats
+runner_type: mistral-v2
+description: Post NRE Labs stats to slack
+enabled: true
+entry_point: workflows/post_nrelabs_stats.yaml

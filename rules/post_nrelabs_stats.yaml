@@ -1,0 +1,15 @@
+---
+name: post_nrelabs_stats
+description: Post NRE Labs stats to slack every week
+trigger:
+  type: "core.st2.CronTimer"
+  parameters:
+      timezone: "UTC"
+      day_of_week: 0
+      hour: 17
+      minute: 0
+      second: 0
+criteria: {}
+action:
+  ref: antidoteops.post_nrelabs_stats
+enabled: true

@@ -1,0 +1,6 @@
+---
+  name: "get_influx_report"
+  runner_type: "python-script"
+  description: "Retrieve NRE Labs stats from influx"
+  enabled: true
+  entry_point: "get_influx_report.py"
