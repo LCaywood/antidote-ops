@@ -54,11 +54,14 @@ if [[ -z "${CHANGELOG_VERSION_MATCH}" ]]; then
     echo "Setting version in ${CHANGELOG_FILE} to ${VERSION}..."
     sed -i "s/^## In development/## ${RELEASE_STRING}/Ig" ${CHANGELOG_FILE}
 
-    if [ "$PROJECT" = "antidote" ]; then
-        sed -i "/${RELEASE_STRING}/i \## In development\n\n### Curriculum\n\n### Other\n\n" ${CHANGELOG_FILE}
-    else
-        sed -i "/${RELEASE_STRING}/i \## In development\n\n" ${CHANGELOG_FILE}
-    fi
+    # After the move into the nrelabs-curriclum repo, this logic is no longer necessary.
+    # if [ "$PROJECT" = "antidote" ]; then
+    #     sed -i "/${RELEASE_STRING}/i \## In development\n\n### Curriculum\n\n### Other\n\n" ${CHANGELOG_FILE}
+    # else
+    #     sed -i "/${RELEASE_STRING}/i \## In development\n\n" ${CHANGELOG_FILE}
+    # fi
+
+    sed -i "/${RELEASE_STRING}/i \## In development\n\n" ${CHANGELOG_FILE}
 fi
 
 MODIFIED=`git status | grep modified || true`

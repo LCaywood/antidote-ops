@@ -14,7 +14,7 @@ parameters:
         items:
             type: string
         default:
-            - antidote
+            - nrelabs-curriculum
             - antidote-web
             - syringe
         description: The list of projects to stage release.
