@@ -41,9 +41,12 @@ Number of lessons launched this week:
             else:
                 lesson_count[full_name_id] += 1
 
+        i = 0
         for count, name in sorted(((value, key) for (key,value) in lesson_count.items()), reverse=True):
+            i += count
             final_output_text += "%s - %s\n" % (name, count)
 
+        final_output_text += "\n Total Lessons launched this week: %s" % i
 
         final_output_text += "\n"
 
