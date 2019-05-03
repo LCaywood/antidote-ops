@@ -53,3 +53,10 @@ resource "random_id" "id" {
     
 #   ]
 # }
+
+terraform {
+  backend "gcs" {
+    bucket  = "tf-state-antidote"
+    prefix  = "terraform/state"
+  }
+}
