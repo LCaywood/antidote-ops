@@ -5,6 +5,7 @@ variable "billing_account" {}
 provider "google" {
   region  = "${var.region}"
   version = "~> 1.17.1"
+  project = "${var.project}"
 }
 
 resource "random_id" "id" {

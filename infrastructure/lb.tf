@@ -22,7 +22,7 @@ resource "google_compute_global_forwarding_rule" "nrehttp" {
 resource "google_compute_target_https_proxy" "nrehttpsproxy" {
   name             = "nrehttpsproxy"
   project          = "${var.project}"
-  ssl_certificates = ["nre-01112019"]
+  ssl_certificates = ["nre-04032019"]
   url_map          = "${google_compute_url_map.https-url-map.self_link}"
 }
 
@@ -35,7 +35,6 @@ resource "google_compute_target_http_proxy" "nrehttpproxy" {
 resource "google_compute_url_map" "https-url-map" {
   name    = "https-url-map"
   project = "${var.project}"
- 
   host_rule {
     hosts        = [
       "labs.networkreliability.engineering",
