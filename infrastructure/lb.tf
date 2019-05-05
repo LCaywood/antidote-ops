@@ -379,3 +379,63 @@ resource "google_compute_health_check" "k8sapi" {
     port = "6443"
   }
 }
+
+resource "google_compute_forwarding_rule" "k8sapi-ha" {
+  name    = "k8sapi-forwarding-rule-ha"
+  project = "${var.project}"
+
+  ip_address = "10.138.0.250"
+
+  ports                 = ["6443"]
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = "${google_compute_region_backend_service.k8sapi-ha.self_link}"
+  network               = "${google_compute_network.default-internal.name}"
+}
+
+resource "google_compute_region_backend_service" "k8sapi-ha" {
+  name        = "k8sapi-ha"
+  project     = "${var.project}"
+  description = "k8sapi-ha"
+
+  # port_name = "k8sapi"
+  protocol = "TCP"
+
+  timeout_sec = 10
+
+  # enable_cdn = false
+
+  backend {
+    group = "${data.google_compute_instance_group.controller-ha-group-0.self_link}"
+  }
+
+  # ONLY UNCOMMENT THESE AFTER THEY'VE BEEN JOINED TO THE CLUSTER
+  # You can't join to the load balancer IP from a group within the load balancer's control.
+  # Join first, then add to the load balancer with this.
+  #
+  # backend {
+  #   group = "${data.google_compute_instance_group.controller-ha-group-1.self_link}"
+  # }
+
+  # backend {
+  #   group = "${data.google_compute_instance_group.controller-ha-group-2.self_link}"
+  # }
+
+  depends_on = [
+    "google_compute_health_check.k8sapi-ha",
+  ]
+  health_checks = [
+    "${google_compute_health_check.k8sapi-ha.self_link}",
+  ]
+}
+
+resource "google_compute_health_check" "k8sapi-ha" {
+  name    = "k8sapi-ha"
+  project = "${var.project}"
+
+  timeout_sec        = 1
+  check_interval_sec = 3
+
+  tcp_health_check {
+    port = "6443"
+  }
+}

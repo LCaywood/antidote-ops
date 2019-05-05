@@ -131,7 +131,7 @@
       dest: /etc/kubernetes/node-kubeconfig.yaml
       force: no
 
-  - name: Create CNI directory	
+  - name: Create CNI directory
     file:	
       path: /etc/cni/net.d/	
       state: directory	
