@@ -10,3 +10,5 @@ antidoteops.post_nrelabs_stats:
         action: slack.post_message
         input:
           message: "{{ task('get_stats').result.stdout.replace('\\\\n', '\\n') }}"
+      update_sheet:
+        action: antidoteops.add_to_sheet
