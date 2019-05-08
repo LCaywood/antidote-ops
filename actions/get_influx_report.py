@@ -81,4 +81,6 @@ Number of lessons launched this week:
         final_output_text += "Most concurrent lessons was at %s with %s concurrent lessons\n" % (
             largest_concurrent_timestamp, largest_concurrent_seen)
 
+        final_output_text += "Weekly stats are also summarized in this spreadsheet: https://docs.google.com/spreadsheets/d/1EROKZ1BWnyP3-mbzHSdFmu4U-HjucIMFPJiJb6W8QO8/edit#gid=0 \n"
+
         print(final_output_text)
