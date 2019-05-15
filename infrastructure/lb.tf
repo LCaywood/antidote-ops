@@ -60,6 +60,20 @@ resource "google_compute_url_map" "https-url-map" {
     path_matcher = "maintenance"
   }
 
+  host_rule {
+    hosts        = [
+      "influxdb.networkreliability.engineering"
+    ]
+    path_matcher = "influxdb"
+  }
+
+  host_rule {
+    hosts        = [
+      "grafana.networkreliability.engineering"
+    ]
+    path_matcher = "grafana"
+  }
+
   path_matcher {
     name            = "production"
     default_service = "${google_compute_backend_service.httpsbackend.self_link}"
@@ -70,7 +84,17 @@ resource "google_compute_url_map" "https-url-map" {
     default_service = "${google_compute_backend_bucket.maintenance.self_link}"
   }
 
-  default_service = "${google_compute_backend_bucket.maintenance.self_link}"
+  path_matcher {
+    name            = "influxdb"
+    default_service = "${google_compute_backend_service.observer-influxdb.self_link}"
+  }
+
+  path_matcher {
+    name            = "grafana"
+    default_service = "${google_compute_backend_service.observer-grafana.self_link}"
+  }
+
+  default_service = "${google_compute_backend_service.httpsbackend.self_link}"
 }
 
 resource "google_compute_url_map" "http-url-map" {
@@ -113,7 +137,7 @@ resource "google_compute_url_map" "http-url-map" {
     default_service = "${google_compute_backend_bucket.maintenance.self_link}"
   }
 
-  default_service = "${google_compute_backend_bucket.maintenance.self_link}"
+  default_service = "${google_compute_backend_service.httpbackend.self_link}"
 }
 
 resource "google_compute_backend_service" "httpsbackend" {
@@ -139,6 +163,55 @@ resource "google_compute_backend_service" "httpsbackend" {
     "${google_compute_health_check.httpshealth.self_link}",
   ]
 }
+
+resource "google_compute_backend_service" "observer-influxdb" {
+  name        = "observer-influxdb"
+  project     = "${var.project}"
+
+  port_name = "observer-influxdb"
+  protocol  = "HTTP"
+
+  timeout_sec = 10
+
+  enable_cdn = false
+
+  backend {
+    group = "${data.google_compute_instance_group.observer.self_link}"
+  }
+
+  depends_on = [
+    "google_compute_health_check.observerhealth-influxdb",
+  ]
+
+  health_checks = [
+    "${google_compute_health_check.observerhealth-influxdb.self_link}",
+  ]
+}
+
+resource "google_compute_backend_service" "observer-grafana" {
+  name        = "observer-grafana"
+  project     = "${var.project}"
+
+  port_name = "observer-grafana"
+  protocol  = "HTTP"
+
+  timeout_sec = 10
+
+  enable_cdn = false
+
+  backend {
+    group = "${data.google_compute_instance_group.observer.self_link}"
+  }
+
+  depends_on = [
+    "google_compute_health_check.observerhealth-grafana",
+  ]
+
+  health_checks = [
+    "${google_compute_health_check.observerhealth-grafana.self_link}",
+  ]
+}
+
 
 
 resource "google_compute_backend_service" "httpbackend" {
@@ -177,6 +250,30 @@ resource "google_compute_health_check" "httphealth" {
   }
 }
 
+resource "google_compute_health_check" "observerhealth-influxdb" {
+  name    = "observerhealth-influxdb"
+  project = "${var.project}"
+
+  timeout_sec        = 1
+  check_interval_sec = 3
+
+  tcp_health_check {
+    port = "8086"
+  }
+}
+resource "google_compute_health_check" "observerhealth-grafana" {
+  name    = "observerhealth-grafana"
+  project = "${var.project}"
+
+  timeout_sec        = 1
+  check_interval_sec = 3
+
+  tcp_health_check {
+    port = "3000"
+  }
+}
+
+
 resource "google_compute_health_check" "httpshealth" {
   name    = "httpshealth"
   project = "${var.project}"
@@ -193,7 +290,7 @@ resource "google_compute_backend_bucket" "maintenance" {
   name        = "maintenance"
   project = "${var.project}"
   bucket_name = "${google_storage_bucket.maintenance-page.name}"
-  enable_cdn  = true
+  enable_cdn  = false
 }
 
 
