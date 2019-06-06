@@ -47,3 +47,36 @@ resource "google_dns_record_set" "abathur" {
     "${google_compute_instance.abathur.network_interface.0.access_config.0.nat_ip}",
   ]
 }
+
+resource "google_dns_record_set" "influxdb" {
+  name = "influxdb.networkreliability.engineering."
+  type = "A"
+  ttl  = 300
+  project = "${var.project}"
+  managed_zone = "nre"
+  rrdatas = [
+    "${google_compute_global_address.nrefrontend.address}",
+  ]
+}
+
+resource "google_dns_record_set" "grafana" {
+  name = "grafana.networkreliability.engineering."
+  type = "A"
+  ttl  = 300
+  project = "${var.project}"
+  managed_zone = "nre"
+  rrdatas = [
+    "${google_compute_global_address.nrefrontend.address}",
+  ]
+}
+
+resource "google_dns_record_set" "lily" {
+  name = "lily.networkreliability.engineering."
+  type = "A"
+  ttl  = 300
+  project = "${var.project}"
+  managed_zone = "nre"
+  rrdatas = [
+    "${packet_device.lily.network.0.address}",
+  ]
+}

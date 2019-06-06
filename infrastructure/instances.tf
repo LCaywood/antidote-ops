@@ -4,22 +4,25 @@ data "google_compute_region_instance_group" "controllers" {
   self_link = "${google_compute_region_instance_group_manager.controllers.instance_group}"
 }
 
-data "google_compute_instance_group" "controller-ha-group-0" {
+# data "google_compute_instance_group" "controller-ha-group-0" {
+#   project   = "${var.project}"
+#   self_link = "${google_compute_instance_group.controller-ha-group-0.self_link}"
+# }
+
+# data "google_compute_instance_group" "controller-ha-group-1" {
+#   project   = "${var.project}"
+#   self_link = "${google_compute_instance_group.controller-ha-group-1.self_link}"
+# }
+
+# data "google_compute_instance_group" "controller-ha-group-2" {
+#   project   = "${var.project}"
+#   self_link = "${google_compute_instance_group.controller-ha-group-2.self_link}"
+# }
+
+data "google_compute_instance_group" "observer" {
   project   = "${var.project}"
-  self_link = "${google_compute_instance_group.controller-ha-group-0.self_link}"
+  self_link = "${google_compute_instance_group.observer.self_link}"
 }
-
-data "google_compute_instance_group" "controller-ha-group-1" {
-  project   = "${var.project}"
-  self_link = "${google_compute_instance_group.controller-ha-group-1.self_link}"
-}
-
-
-data "google_compute_instance_group" "controller-ha-group-2" {
-  project   = "${var.project}"
-  self_link = "${google_compute_instance_group.controller-ha-group-2.self_link}"
-}
-
 
 data "google_compute_region_instance_group" "workers" {
   project   = "${var.project}"
@@ -66,7 +69,7 @@ resource "google_compute_region_autoscaler" "controllers-scaler" {
   region  = "${var.region}"
   target  = "${google_compute_region_instance_group_manager.controllers.self_link}"
 
-  autoscaling_policy = {
+  autoscaling_policy {
     max_replicas    = 1
     min_replicas    = 1
     cooldown_period = 60
@@ -83,7 +86,7 @@ resource "google_compute_region_autoscaler" "workers-scaler" {
   region  = "${var.region}"
   target  = "${google_compute_region_instance_group_manager.workers.self_link}"
 
-  autoscaling_policy = {
+  autoscaling_policy {
     max_replicas    = 3
     min_replicas    = 3
     cooldown_period = 60
@@ -123,89 +126,92 @@ resource "google_compute_instance_template" "controllers" {
   }
   network_interface {
     network       = "${google_compute_network.default-internal.name}"
-    access_config = {}
+    access_config {}
   }
 }
 
-resource "google_compute_instance_group" "controller-ha-group-0" {
-  name        = "controller-ha-group-0"
-  description = "Unmanaged instance group for controllers-ha-0"
-  zone        = "${var.zone1}"
-  network     = "${google_compute_network.default-internal.self_link}"
-  instances = [
-    "${google_compute_instance_from_template.controllers-ha-0.self_link}",
-  ]
-}
+# resource "google_compute_instance_group" "controller-ha-group-0" {
+#   name        = "controller-ha-group-0"
+#   description = "Unmanaged instance group for controllers-ha-0"
+#   zone        = "${var.zone1}"
+#   network     = "${google_compute_network.default-internal.self_link}"
+#   instances = [
+#     "${google_compute_instance_from_template.controllers-ha-0.self_link}",
+#   ]
+# }
 
-resource "google_compute_instance_from_template" "controllers-ha-0" {
-  name = "controllers-ha-0"
-  zone           = "${var.zone1}"
-  source_instance_template = "${google_compute_instance_template.controllers-ha.self_link}"
-}
-
-
-resource "google_compute_instance_group" "controller-ha-group-1" {
-  name        = "controller-ha-group-1"
-  description = "Unmanaged instance group for controllers-ha-1"
-  zone        = "${var.zone2}"
-  network     = "${google_compute_network.default-internal.self_link}"
-  # instances = [
-  #   "${google_compute_instance_from_template.controllers-ha-1.self_link}",
-  # ]
-}
-
-resource "google_compute_instance_from_template" "controllers-ha-1" {
-  name = "controllers-ha-1"
-  zone           = "${var.zone2}"
-  source_instance_template = "${google_compute_instance_template.controllers-ha.self_link}"
-}
+# resource "google_compute_instance_from_template" "controllers-ha-0" {
+#   name = "controllers-ha-0"
+#   tags         = ["antidote", "kubernetes", "kubernetescontrollers", "k8s-ha", "k8s-ha-starter"]
+#   zone           = "${var.zone1}"
+#   source_instance_template = "${google_compute_instance_template.controllers-ha.self_link}"
+# }
 
 
-resource "google_compute_instance_group" "controller-ha-group-2" {
-  name        = "controller-ha-group-2"
-  description = "Unmanaged instance group for controllers-ha-2"
-  zone        = "${var.zone3}"
-  network     = "${google_compute_network.default-internal.self_link}"
-  # instances = [
-  #   "${google_compute_instance_from_template.controllers-ha-2.self_link}",
-  # ]
-}
+# resource "google_compute_instance_group" "controller-ha-group-1" {
+#   name        = "controller-ha-group-1"
+#   description = "Unmanaged instance group for controllers-ha-1"
+#   zone        = "${var.zone2}"
+#   network     = "${google_compute_network.default-internal.self_link}"
+#   instances = [
+#     "${google_compute_instance_from_template.controllers-ha-1.self_link}",
+#   ]
+# }
 
-resource "google_compute_instance_from_template" "controllers-ha-2" {
-  name = "controllers-ha-2"
-  zone           = "${var.zone3}"
-  source_instance_template = "${google_compute_instance_template.controllers-ha.self_link}"
-}
+# resource "google_compute_instance_from_template" "controllers-ha-1" {
+#   name = "controllers-ha-1"
+#   tags         = ["antidote", "kubernetes", "kubernetescontrollers", "k8s-ha", "k8s-ha-remainder"]
+#   zone           = "${var.zone2}"
+#   source_instance_template = "${google_compute_instance_template.controllers-ha.self_link}"
+# }
 
-resource "google_compute_instance_template" "controllers-ha" {
-  name        = "controllers-ha"
-  project     = "${var.project}"
-  description = "This template is used to create antidote controller instances."
 
-  tags         = ["antidote", "kubernetes", "kubernetescontrollers", "k8s-ha"]
-  # machine_type = "n1-standard-1"
-  machine_type = "custom-2-4096"
+# resource "google_compute_instance_group" "controller-ha-group-2" {
+#   name        = "controller-ha-group-2"
+#   description = "Unmanaged instance group for controllers-ha-2"
+#   zone        = "${var.zone3}"
+#   network     = "${google_compute_network.default-internal.self_link}"
+#   instances = [
+#     "${google_compute_instance_from_template.controllers-ha-2.self_link}",
+#   ]
+# }
 
-  instance_description = "antidote controller instance"
-  can_ip_forward       = true
+# resource "google_compute_instance_from_template" "controllers-ha-2" {
+#   name = "controllers-ha-2"
+#   tags         = ["antidote", "kubernetes", "kubernetescontrollers", "k8s-ha", "k8s-ha-remainder"]
+#   zone           = "${var.zone3}"
+#   source_instance_template = "${google_compute_instance_template.controllers-ha.self_link}"
+# }
 
-  # scheduling {
-  #   automatic_restart   = true
-  #   on_host_maintenance = "MIGRATE"
-  # }
+# resource "google_compute_instance_template" "controllers-ha" {
+#   name        = "controllers-ha"
+#   project     = "${var.project}"
+#   description = "This template is used to create antidote controller instances."
 
-  disk {
-    # source_image = "${google_compute_image.nested-vm-image.name}"
-    source_image = "${var.os["centos-7-2019"]}"
-    auto_delete  = true
-    boot         = true
-    # disk_type = "pd-ssd"
-  }
-  network_interface {
-    network       = "${google_compute_network.default-internal.name}"
-    access_config = {}
-  }
-}
+#   tags         = ["antidote", "kubernetes", "kubernetescontrollers", "k8s-ha"]
+#   # machine_type = "n1-standard-1"
+#   machine_type = "custom-2-4096"
+
+#   instance_description = "antidote controller instance"
+#   can_ip_forward       = true
+
+#   # scheduling {
+#   #   automatic_restart   = true
+#   #   on_host_maintenance = "MIGRATE"
+#   # }
+
+#   disk {
+#     # source_image = "${google_compute_image.nested-vm-image.name}"
+#     source_image = "${var.os["centos-7-2019"]}"
+#     auto_delete  = true
+#     boot         = true
+#     # disk_type = "pd-ssd"
+#   }
+#   network_interface {
+#     network       = "${google_compute_network.default-internal.name}"
+#     access_config {}
+#   }
+# }
 
 
 resource "google_compute_instance_template" "workers" {
@@ -239,7 +245,7 @@ resource "google_compute_instance_template" "workers" {
   }
   network_interface {
     network       = "${google_compute_network.default-internal.name}"
-    access_config = {}
+    access_config {}
   }
 }
 
@@ -263,6 +269,51 @@ resource "google_compute_instance" "abathur" {
 
   network_interface {
     network       = "${google_compute_network.default-internal.name}"
-    access_config = {}
+    access_config {}
+  }
+}
+
+# This allows us to send traffic to this instance via the load balancer
+resource "google_compute_instance_group" "observer" {
+  name        = "observer"
+  description = "observer group"
+  zone        = "${var.zone1}"
+  network     = "${google_compute_network.default-internal.self_link}"
+  instances = [
+    "${google_compute_instance.observer.self_link}",
+  ]
+
+  named_port {
+    name = "observer-influxdb"
+    port = 8086
+  }
+
+  named_port {
+    name = "observer-grafana"
+    port = 3000
+  }
+}
+resource "google_compute_instance" "observer" {
+  name        = "observer"
+  zone        = "${var.zone}"
+  project     = "${var.project}"
+  description = "Antidote monitoring server"
+
+  tags = []
+
+  # 2 vCPUs, 7.5GB RAM
+  machine_type = "n1-standard-4"
+
+
+  # TODO can this not have SSD?
+  boot_disk {
+    initialize_params {
+      image = "${var.os["centos-7"]}"
+    }
+  }
+
+  network_interface {
+    network       = "${google_compute_network.default-internal.name}"
+    access_config {}
   }
 }

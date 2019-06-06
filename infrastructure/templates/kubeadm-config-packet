@@ -1,0 +1,8 @@
+apiVersion: kubeadm.k8s.io/v1beta1
+kind: ClusterConfiguration
+kubernetesVersion: stable
+controlPlaneEndpoint: "10.88.48.1:6443"
+apiServer:
+  certSANs:
+    - "10.88.48.1"
+    - "lily.networkreliability.engineering"

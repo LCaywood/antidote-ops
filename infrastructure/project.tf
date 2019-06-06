@@ -4,7 +4,8 @@ variable "billing_account" {}
 
 provider "google" {
   region  = "${var.region}"
-  version = "~> 1.17.1"
+  # version = "~> 1.17.1"
+  version = "~> 2.8.0"
   project = "${var.project}"
 }
 

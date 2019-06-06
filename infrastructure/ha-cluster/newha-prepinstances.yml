@@ -1,0 +1,133 @@
+---
+- name: Prep instances (sudo)
+  hosts: tag_k8s-ha
+  gather_facts: no
+  become: yes
+  tasks:
+
+    - name: Configure kubernetes repo
+      template:
+        src: templates/kubernetes.repo
+        dest:  /etc/yum.repos.d/kubernetes.repo
+
+    - name: Install deps
+      package:
+        name: "{{ item }}"
+        state: latest
+      with_items:
+        - epel-release
+        - nfs-utils
+        # - nfs-utils-lib
+        - python-pip
+        - git
+        - lsof
+        - htop
+        - bridge-utils
+        - docker
+        - kubelet-1.14.0
+        - kubeadm-1.14.0
+        - kubectl
+
+    - name: Enable and restart services
+      systemd:
+        name: "{{ item }}"
+        state: restarted
+        daemon_reload: yes
+        enabled: True
+      with_items:
+        - kubelet
+        - docker
+
+    - name: Disable firewall
+      systemd:
+        name: firewalld
+        state: stopped
+        daemon_reload: yes
+        enabled: false
+      ignore_errors: yes
+
+    - name: Configure kernel options
+      template:
+        src: templates/sysctl-k8s.conf
+        dest:  /etc/sysctl.d/k8s.conf
+
+    - name: Finishing up
+      shell: "{{ item }}"
+      with_items:
+      - setenforce 0
+      - sysctl --system
+      - iptables -F
+
+- name: Set up K8S Master
+  hosts: tag_k8s-ha-starter
+  gather_facts: no
+  become: yes
+  tasks:
+
+    - name: Copy kubeadm config
+      copy:
+        src: templates/kubeadm-config
+        dest: /tmp/kubeadm-config.yaml
+        # owner: foo
+        # group: foo
+        # mode: 0644
+
+    - name: Initialize k8s master
+      shell: sudo kubeadm init --config=/tmp/kubeadm-config.yaml --experimental-upload-certs
+      register: output_init
+      ignore_errors: yes
+
+    - name: debug output_init
+      debug:
+        msg: "{{ output_init }}"
+
+    - name: pause to let services finish starting
+      pause:
+        seconds: 30
+      
+    - name: Install Weave
+      shell: kubectl --kubeconfig='/etc/kubernetes/admin.conf' apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+
+    - name: Get kube config file
+      fetch:
+        src: /etc/kubernetes/admin.conf
+        dest: tmp/kubeconfig-ha
+        flat: yes
+
+
+# kubeadm join 10.138.0.250:6443 --token ls0co7.6qbhtvagota0gomo \
+# --discovery-token-ca-cert-hash sha256:8ebeeb5379d0ef62c4da1e40ca9f77ef1247d7733ce195b096cdf76eed27805d \
+# --experimental-control-plane --certificate-key 470c5955e922cb6d79888e0356c258aaf0aaeb1c39936238dda4bc56fba0d2b3
+
+
+
+
+# - name: Set up K8S Master
+#   hosts: tag_k8s-ha-remainder
+#   gather_facts: no
+#   become: yes
+#   tasks:
+
+#     - name: Join existing control plane
+#       # TODO Need to parse certificate-key from above output
+#       shell: "{{ hostvars[groups['k8s_starter'] | first].joincmd }} --experimental-control-plane --certificate-key 9953884ca2d27f758507dbab4c25656c064f40c4f5eecfa3ece2cf2113c42634"
+#       register: output_join_master
+#       ignore_errors: yes
+
+# - name: Make local changes
+#   hosts: 127.0.0.1
+#   connection: local
+#   gather_facts: no
+#   tasks:
+
+#   - name: Check that mastertoken.txt exists
+#     stat:
+#       path: tmp/mastertoken.txt
+#     register: stat_result
+
+#   - copy: content="{{ hostvars[groups['tag_kubernetescontrollers'] | first].mastertoken }}" dest=tmp/mastertoken.txt
+#     when: stat_result.stat.exists == False
+
+#   - name: moving kubeconfig
+#     shell: cp tmp/kubeconfig ~/.kube/config
+

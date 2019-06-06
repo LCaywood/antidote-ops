@@ -19,10 +19,11 @@ resource "google_compute_global_forwarding_rule" "nrehttp" {
   port_range = "80"
 }
 
+
 resource "google_compute_target_https_proxy" "nrehttpsproxy" {
   name             = "nrehttpsproxy"
   project          = "${var.project}"
-  ssl_certificates = ["nre-04032019"]
+  ssl_certificates = ["${var.sslcert}"]
   url_map          = "${google_compute_url_map.https-url-map.self_link}"
 }
 
@@ -139,6 +140,7 @@ resource "google_compute_url_map" "http-url-map" {
 
   default_service = "${google_compute_backend_service.httpbackend.self_link}"
 }
+
 
 resource "google_compute_backend_service" "httpsbackend" {
   name        = "httpsbackend"
@@ -294,141 +296,9 @@ resource "google_compute_backend_bucket" "maintenance" {
 }
 
 
-# #####
-# # Primary entry into Antidote
-# #####
-
-# TODO: I couldn't quite getting this working, so for now, the instructions have the admin doing DNS LB to all of the worker external IPs. Works fine for now.
-# This is only for services that don't go through NGINX, like jupyter notebooks.
-
-# resource "google_compute_global_address" "nrefrontend" {
-#   name    = "nrefrontend"
-#   project = "${var.project}"
-# }
-
-# resource "google_compute_global_forwarding_rule" "nrehttps" {
-#   name       = "nrehttps"
-#   project    = "${var.project}"
-#   ip_address = "${google_compute_global_address.nrefrontend.address}"
-
-#   target     = "${google_compute_target_https_proxy.nrehttpsproxy.self_link}"
-#   port_range = "443"
-# }
-
-# # resource "google_compute_target_http_proxy" "nreproxy" {
-# #   name    = "test-proxy"
-# #   project = "${var.project}"
-# #   url_map = "${google_compute_url_map.default.self_link}"
-# # }
-
-# // TODO(mierdin): I'm currently uploading the letencrypt cert myself - need to automate this
-# resource "google_compute_target_https_proxy" "nrehttpsproxy" {
-#   name             = "nrehttpsproxy"
-#   project          = "${var.project}"
-#   ssl_certificates = ["labs-letsencrypt"]
-#   url_map          = "${google_compute_url_map.default.self_link}"
-# }
-
-# resource "google_compute_url_map" "default" {
-#   name    = "url-map"
-#   project = "${var.project}"
-
-#   host_rule {
-#     hosts        = ["networkreliability.engineering"]
-#     path_matcher = "allpaths"
-#   }
-
-#   # Going to HTTP here for now
-#   path_matcher {
-#     name            = "allpaths"
-#     default_service = "${google_compute_backend_service.httpbackend.self_link}"
-
-#     path_rule {
-#       paths   = ["/*"]
-#       service = "${google_compute_backend_service.httpbackend.self_link}"
-#     }
-#   }
-
-#   default_service = "${google_compute_backend_service.httpbackend.self_link}"
-# }
-
-# resource "google_compute_backend_service" "httpbackend" {
-#   name        = "httpbackend"
-#   project     = "${var.project}"
-#   description = ""
-
-#   port_name = "nrehttp"
-#   protocol  = "HTTP"
-
-#   timeout_sec = 10
-
-#   enable_cdn = false
-
-#   backend {
-#     group = "${data.google_compute_region_instance_group.workers.self_link}"
-#   }
-
-#   depends_on = [
-#     "google_compute_health_check.httphealth",
-#   ]
-
-#   health_checks = [
-#     "${google_compute_health_check.httphealth.self_link}",
-#   ]
-# }
-
-# resource "google_compute_backend_service" "httpsbackend" {
-#   name        = "httpsbackend"
-#   project     = "${var.project}"
-#   description = ""
-
-#   port_name = "nrehttps"
-#   protocol  = "HTTPS"
-
-#   timeout_sec = 10
-
-#   enable_cdn = false
-
-#   backend {
-#     group = "${data.google_compute_region_instance_group.workers.self_link}"
-#   }
-
-#   depends_on = [
-#     "google_compute_health_check.httpshealth",
-#   ]
-
-#   health_checks = [
-#     "${google_compute_health_check.httpshealth.self_link}",
-#   ]
-# }
-
-# resource "google_compute_health_check" "httphealth" {
-#   name    = "httphealth"
-#   project = "${var.project}"
-
-#   timeout_sec        = 1
-#   check_interval_sec = 3
-
-#   tcp_health_check {
-#     port = "30001"
-#   }
-# }
-
-# resource "google_compute_health_check" "httpshealth" {
-#   name    = "httpshealth"
-#   project = "${var.project}"
-
-#   timeout_sec        = 1
-#   check_interval_sec = 3
-
-#   tcp_health_check {
-#     port = "30001"
-#   }
-# }
-
-###
-# INTERNAL - for k8s API
-###
+###################################
+#    !!! OLD internal k8s api !!! #
+###################################
 
 resource "google_compute_forwarding_rule" "k8sapi" {
   name    = "k8sapi-forwarding-rule"
@@ -477,62 +347,66 @@ resource "google_compute_health_check" "k8sapi" {
   }
 }
 
-resource "google_compute_forwarding_rule" "k8sapi-ha" {
-  name    = "k8sapi-forwarding-rule-ha"
-  project = "${var.project}"
 
-  ip_address = "10.138.0.250"
+############################
+#   !!!!!   K8S HA !!!!    #
+############################
 
-  ports                 = ["6443"]
-  load_balancing_scheme = "INTERNAL"
-  backend_service       = "${google_compute_region_backend_service.k8sapi-ha.self_link}"
-  network               = "${google_compute_network.default-internal.name}"
-}
+# resource "google_compute_forwarding_rule" "k8s-ha" {
+#   name       = "k8sapi-forwarding-rule-ha"
+#   project    = "${var.project}"
 
-resource "google_compute_region_backend_service" "k8sapi-ha" {
-  name        = "k8sapi-ha"
-  project     = "${var.project}"
-  description = "k8sapi-ha"
+#   ip_address = "10.138.0.250"
+#   ports                 = ["6443"]
+#   load_balancing_scheme = "INTERNAL"
+#   backend_service       = "${google_compute_region_backend_service.k8sapi-ha.self_link}"
+#   network               = "${google_compute_network.default-internal.name}"
+# }
 
-  # port_name = "k8sapi"
-  protocol = "TCP"
+# resource "google_compute_region_backend_service" "k8sapi-ha" {
+#   name        = "k8sapi-ha"
+#   project     = "${var.project}"
+#   description = "k8sapi-ha"
 
-  timeout_sec = 10
+#   # port_name = "k8sapi"
+#   protocol = "TCP"
 
-  # enable_cdn = false
+#   timeout_sec = 10
 
-  backend {
-    group = "${data.google_compute_instance_group.controller-ha-group-0.self_link}"
-  }
+#   # enable_cdn = false
 
-  # ONLY UNCOMMENT THESE AFTER THEY'VE BEEN JOINED TO THE CLUSTER
-  # You can't join to the load balancer IP from a group within the load balancer's control.
-  # Join first, then add to the load balancer with this.
-  #
-  # backend {
-  #   group = "${data.google_compute_instance_group.controller-ha-group-1.self_link}"
-  # }
+#   backend {
+#     group = "${data.google_compute_instance_group.controller-ha-group-0.self_link}"
+#   }
 
-  # backend {
-  #   group = "${data.google_compute_instance_group.controller-ha-group-2.self_link}"
-  # }
+#   # ONLY UNCOMMENT THESE AFTER THEY'VE BEEN JOINED TO THE CLUSTER
+#   # You can't join to the load balancer IP from a group within the load balancer's control.
+#   # Join first, then add to the load balancer with this.
+#   #
+#   # backend {
+#   #   group = "${data.google_compute_instance_group.controller-ha-group-1.self_link}"
+#   # }
 
-  depends_on = [
-    "google_compute_health_check.k8sapi-ha",
-  ]
-  health_checks = [
-    "${google_compute_health_check.k8sapi-ha.self_link}",
-  ]
-}
+#   # backend {
+#   #   group = "${data.google_compute_instance_group.controller-ha-group-2.self_link}"
+#   # }
 
-resource "google_compute_health_check" "k8sapi-ha" {
-  name    = "k8sapi-ha"
-  project = "${var.project}"
+#   depends_on = [
+#     "google_compute_health_check.k8sapi-ha",
+#   ]
+#   health_checks = [
+#     "${google_compute_health_check.k8sapi-ha.self_link}",
+#   ]
+# }
 
-  timeout_sec        = 1
-  check_interval_sec = 3
+# resource "google_compute_health_check" "k8sapi-ha" {
+#   name    = "k8sapi-ha"
+#   project = "${var.project}"
 
-  tcp_health_check {
-    port = "6443"
-  }
-}
+#   timeout_sec        = 1
+#   check_interval_sec = 3
+
+#   tcp_health_check {
+#     port = "6443"
+#   }
+# }

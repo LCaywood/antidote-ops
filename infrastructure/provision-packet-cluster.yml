@@ -1,0 +1,197 @@
+---
+- name: Prep instances (sudo)
+  hosts: all
+  gather_facts: no
+  become: yes
+  vars:
+    ansible_user: root 
+  tasks:
+
+    - name: Configure kubernetes repo
+      template:
+        src: templates/kubernetes.repo
+        dest:  /etc/yum.repos.d/kubernetes.repo
+
+    - name: Install deps
+      package:
+        name: "{{ item }}"
+        state: latest
+      with_items:
+        - epel-release
+        - nfs-utils
+        # - nfs-utils-lib
+        - python-pip
+        - git
+        - lsof
+        - htop
+        - bridge-utils
+        - docker
+        - kubelet-1.14.0
+        - kubeadm-1.14.0
+        - kubectl
+
+    - name: Enable and restart services
+      systemd:
+        name: "{{ item }}"
+        state: restarted
+        daemon_reload: yes
+        enabled: True
+      with_items:
+        - kubelet
+        - docker
+
+    # - name: Disable firewall
+    #   systemd:
+    #     name: firewalld
+    #     state: stopped
+    #     daemon_reload: yes
+    #     enabled: false
+
+    - name: Configure kernel options
+      template:
+        src: templates/sysctl-k8s.conf
+        dest:  /etc/sysctl.d/k8s.conf
+
+    - name: Remove swap configuration
+      lineinfile: dest=/etc/fstab
+                  state=absent
+                  regexp='^swap$'
+
+    - name: Finishing up
+      shell: "{{ item }}"
+      with_items:
+      - setenforce 0
+      - sysctl --system
+      - iptables -F
+      - swapoff -a
+
+    # TODO THIS NEEDS TO BE PERSISTENT
+    # This bit you again after a reboot
+    # https://forum.level1techs.com/t/kubeadm-for-kubernetes-chicken-and-egg-problem-during-setup-what-am-i-doing-wrong/129086
+    - name: Finishing up
+      shell: "{{ item }}"
+      with_items:
+        - setenforce 0
+
+    - name: Download weave CLI utility
+      shell: curl -L git.io/weave -o /usr/bin/weave && chmod a+x /usr/bin/weave
+
+- name: Set up K8S Master
+  hosts: tag_antidote_master
+  gather_facts: no
+  become: yes
+  vars:
+    ansible_user: root 
+  tasks:
+
+    - name: Copy kubeadm config
+      copy:
+        src: templates/kubeadm-config-packet
+        dest: /tmp/kubeadm-config.yaml
+
+    - name: Initialize k8s master
+      shell: kubeadm init --config=/tmp/kubeadm-config.yaml
+      register: output_init
+      ignore_errors: yes
+
+    - name: debug output_init
+      debug:
+        msg: "{{ output_init }}"
+
+    - name: pause to let services finish starting
+      pause:
+        seconds: 30
+
+    - name: Install Weave
+      shell: kubectl --kubeconfig='/etc/kubernetes/admin.conf' apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+
+    - name: get master token
+      shell: kubeadm token list |grep default-node-token |awk '{print $1}'
+      register: output
+
+    - name: show output
+      debug:
+        msg: "{{ output }}"
+
+    - name: set master token
+      set_fact:
+        mastertoken: "{{ output.stdout }}"
+
+    - name: Get kube config file
+      fetch:
+        src: /etc/kubernetes/admin.conf
+        dest: tmp/kubeconfig
+        flat: yes
+
+- name: Set up K8S Workers
+  hosts: tag_antidote_worker
+  gather_facts: no
+  become: yes
+  vars:
+    ansible_user: root 
+  tasks:
+
+  # - name: docker info for getting cgroup driver
+  #   shell: docker info 2>/dev/null |grep "Cgroup Driver" |awk '{print $3}'
+  #   register: docker_info
+
+  # - name: get cgroup driver
+  #   set_fact:
+  #     cgroup_driver: "{{ docker_info.stdout }}"
+
+  # - name: set cgroup driver to cgroupfs
+  #   lineinfile:
+  #     path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+  #     regexp: '^Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=.*"'
+  #     line: 'Environment="KUBELET_CGROUP_ARGS=--cgroup-driver={{ cgroup_driver }}"'
+
+  - name: Upload kubeconfig
+    copy:
+      src: tmp/kubeconfig
+      dest: /etc/kubernetes/node-kubeconfig.yaml
+      force: no
+
+  - name: Create CNI directory
+    file:
+      path: /etc/cni/net.d/
+      state: directory
+  
+  # Important that we spep_vars/tag_env_dev.ymlfy a priority of 1 as most other plugins will try to generate
+  # their own conf files p_vars/tag_env_dev.yml a priority of 10
+  - name: Install multus CNI config
+    template:
+      src: templates/multus-cni.conf
+      dest:  /etc/cni/net.d/1-multus-cni.conf
+
+  - name: Download antibridge plugin
+    shell: curl -L https://github.com/nre-learning/plugins/blob/master/bin/antibridge?raw=true -o /opt/cni/bin/antibridge && chmod a+x /opt/cni/bin/antibridge
+
+  - name: enable kubelet service
+    systemd:
+      name: kubelet
+      state: restarted
+      daemon_reload: yes
+      enabled: True
+
+  # IP is lily :)
+  - name: join k8s cluster
+    shell: "kubeadm join --token {{ hostvars[groups['tag_antidote_master'] | first].mastertoken }} --discovery-token-unsafe-skip-ca-verification 10.88.48.1:6443"
+    ignore_errors: yes
+
+- name: Make local changes
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: no
+  tasks:
+
+  - name: Check that mastertoken.txt exists
+    stat:
+      path: tmp/mastertoken.txt
+    register: stat_result
+
+  - copy: content="{{ hostvars[groups['tag_antidote_master'] | first].mastertoken }}" dest=tmp/mastertoken.txt
+    when: stat_result.stat.exists == False
+
+  - name: moving kubeconfig
+    shell: cp tmp/kubeconfig ~/.kube/packetconfig
+
