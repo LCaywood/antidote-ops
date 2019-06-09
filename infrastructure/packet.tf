@@ -19,11 +19,8 @@ resource "packet_device" "lily" {
   billing_cycle    = "hourly"
   project_id       = "${var.packet_project_id}"
   tags = ["antidote-master"]
-  # project_ssh_key_ids = ["${packet_ssh_key.mierdinkey.id}"]
-  # depends_on       = ["packet_ssh_key.mierdinkey"]
-  # project_ssh_key_ids = ["mierdinkey"]
+  depends_on       = ["packet_ssh_key.mierdinkey"]
 }
-
 
 resource "packet_device" "antidote-worker" {
   count = 3
@@ -34,11 +31,10 @@ resource "packet_device" "antidote-worker" {
   billing_cycle    = "hourly"
   project_id       = "${var.packet_project_id}"
   tags = ["antidote-worker"]
-#   depends_on       = ["packet_ssh_key.mierdinkey"]
+  depends_on       = ["packet_ssh_key.mierdinkey"]
 }
 
-# resource "packet_ssh_key" "mierdinkey" {
-#   name       = "mierdinkey"
-#   public_key = "${file("/home/mierdin/.ssh/id_rsa.pub")}"
-#   project_id = "${var.packet_project_id}"
-# }
+resource "packet_ssh_key" "mierdinkey" {
+  name       = "mierdinkey"
+  public_key = "${file("/home/mierdin/.ssh/id_rsa.pub")}"
+}
