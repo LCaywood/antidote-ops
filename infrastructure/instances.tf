@@ -284,14 +284,15 @@ resource "google_compute_instance_group" "observer" {
   ]
 
   named_port {
+    name = "observer-grafana"
+    port = 3000
+  }
+
+  named_port {
     name = "observer-influxdb"
     port = 8086
   }
 
-  named_port {
-    name = "observer-grafana"
-    port = 3000
-  }
 }
 resource "google_compute_instance" "observer" {
   name        = "observer"
@@ -299,7 +300,7 @@ resource "google_compute_instance" "observer" {
   project     = "${var.project}"
   description = "Antidote monitoring server"
 
-  tags = []
+  tags         = ["observer"]
 
   # 2 vCPUs, 7.5GB RAM
   machine_type = "n1-standard-4"

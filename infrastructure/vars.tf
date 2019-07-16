@@ -8,7 +8,7 @@ variable "prodstate" {
 }
 
 variable "sslcert" {
-  default = "nre-04032019"
+  default = "nre-06222019"
 }
 
 variable "zone" {
@@ -53,4 +53,6 @@ variable "project_name" {
   default = "antidote-216521"
 }
 
-variable "influxdb_default_password" {}
+
+variable "cloudflare_email" {}
+variable "cloudflare_token" {}

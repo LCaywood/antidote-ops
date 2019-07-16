@@ -75,15 +75,6 @@ resource "google_compute_url_map" "https-url-map" {
     path_matcher = "grafana"
   }
 
-  path_matcher {
-    name            = "production"
-    default_service = "${google_compute_backend_service.httpsbackend.self_link}"
-  }
-
-  path_matcher {
-    name            = "maintenance"
-    default_service = "${google_compute_backend_bucket.maintenance.self_link}"
-  }
 
   path_matcher {
     name            = "influxdb"
@@ -91,8 +82,18 @@ resource "google_compute_url_map" "https-url-map" {
   }
 
   path_matcher {
+    name            = "production"
+    default_service = "${google_compute_backend_service.httpsbackend.self_link}"
+  }
+
+  path_matcher {
     name            = "grafana"
     default_service = "${google_compute_backend_service.observer-grafana.self_link}"
+  }
+
+  path_matcher {
+    name            = "maintenance"
+    default_service = "${google_compute_backend_bucket.maintenance.self_link}"
   }
 
   default_service = "${google_compute_backend_service.httpsbackend.self_link}"
