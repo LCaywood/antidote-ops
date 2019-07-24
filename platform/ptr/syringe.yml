@@ -74,7 +74,7 @@ spec:
       - name: git-clone
         image: antidotelabs/githelper
         args:
-        - "https://github.com/nre-learning/antidote.git"
+        - "https://github.com/nre-learning/nrelabs-curriculum.git"
         - "master"
         - "/antidote"
         volumeMounts:
@@ -85,21 +85,25 @@ spec:
       serviceAccount: syringesaptr
       containers:
       - name: syringe
-        image: antidotelabs/syringe:latest
+        image: antidotelabs/syringe:config-influx
         imagePullPolicy: Always
         env:
         - name: SYRINGE_DOMAIN
           value: ptr.labs.networkreliability.engineering
-        - name: SYRINGE_LESSONS
-          value: "/antidote/lessons"
+        - name: SYRINGE_CURRICULUM
+          value: "/antidote"
         - name: SYRINGE_TIER
-          value: "local"
+          value: "ptr"
         - name: SYRINGE_LESSON_REPO_REMOTE
-          value: "https://github.com/nre-learning/antidote.git"
+          value: "https://github.com/nre-learning/nrelabs-curriculum.git"
         - name: SYRINGE_LESSON_REPO_BRANCH
           value: "master"
         - name: SYRINGE_LESSON_REPO_DIR
           value: "/antidote"
+        - name: SYRINGE_INFLUXDB_URL
+          value: "https://influxdb.networkreliability.engineering/"
+        - name: SYRINGE_INFLUXDB_PASSWORD
+          value: "fut-burd-fult-sonk"
         ports:
         # Only accessible from within the container
         # - containerPort: 50099  # GRPC

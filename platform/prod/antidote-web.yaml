@@ -20,7 +20,7 @@ spec:
         ports:
         - containerPort: 4822
       - name: antidote-web
-        image: antidotelabs/antidote-web:release-v0.3.0  #revme
+        image: antidotelabs/antidote-web:release-v0.3.2  #revme
         imagePullPolicy: Always
         env:
         - name: GUACD_HOSTNAME
@@ -78,6 +78,7 @@ spec:
     - hosts:
       - labs.networkreliability.engineering
       - maintbypass.labs.networkreliability.engineering
+      - packet.labs.networkreliability.engineering
       secretName: tls-certificate
   rules:
   - host: labs.networkreliability.engineering
@@ -88,6 +89,13 @@ spec:
           serviceName: antidote-web
           servicePort: 8080
   - host: maintbypass.labs.networkreliability.engineering
+    http:
+      paths:
+      - path: "/"
+        backend:
+          serviceName: antidote-web
+          servicePort: 8080
+  - host: packet.labs.networkreliability.engineering
     http:
       paths:
       - path: "/"

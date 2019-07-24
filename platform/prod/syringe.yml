@@ -76,7 +76,7 @@ spec:
         image: antidotelabs/githelper
         args:
         - "https://github.com/nre-learning/antidote.git"
-        - "v0.3.0"  #revme
+        - "v0.3.2"  #revme
         - "/antidote"
         volumeMounts:
         - name: git-volume  #?
@@ -86,7 +86,7 @@ spec:
       serviceAccount: syringesa
       containers:
       - name: syringe
-        image: antidotelabs/syringe:release-v0.3.0  #revme
+        image: antidotelabs/syringe:release-v0.3.2  #revme
         imagePullPolicy: Always
         env:
         - name: SYRINGE_DOMAIN
@@ -98,7 +98,7 @@ spec:
         - name: SYRINGE_LESSON_REPO_REMOTE
           value: "https://github.com/nre-learning/antidote.git"
         - name: SYRINGE_LESSON_REPO_BRANCH
-          value: "v0.3.0"  #revme
+          value: "v0.3.2"  #revme
         - name: SYRINGE_LESSON_REPO_DIR
           value: "/antidote"
         ports:
@@ -165,6 +165,7 @@ spec:
     - hosts:
       - labs.networkreliability.engineering
       - maintbypass.labs.networkreliability.engineering
+      - packet.labs.networkreliability.engineering
       secretName: tls-certificate
   rules:
   - host: labs.networkreliability.engineering
@@ -175,6 +176,13 @@ spec:
           serviceName: syringe
           servicePort: 8086
   - host: maintbypass.labs.networkreliability.engineering
+    http:
+      paths:
+      - path: "/syringe"
+        backend:
+          serviceName: syringe
+          servicePort: 8086
+  - host: packet.labs.networkreliability.engineering
     http:
       paths:
       - path: "/syringe"

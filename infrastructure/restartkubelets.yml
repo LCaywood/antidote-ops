@@ -1,8 +1,10 @@
 
 - name: Restart kubelets
-  hosts: tag_kubernetes
+  hosts: all
   gather_facts: no
   become: yes
+  vars:
+    ansible_user: root 
   tasks:
 
   - name: Restart kubelet service
