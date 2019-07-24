@@ -130,6 +130,7 @@ docs/virtualenv/
 
 _old_contrail/
 *ansiblekey.json
+*storagesakey.json
 
 platform/antidote-web/target/
 
