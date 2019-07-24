@@ -1,0 +1,59 @@
+
+
+---
+# https://docs.influxdata.com/influxdb/v1.7/introduction/installation/
+# https://docs.influxdata.com/influxdb/v1.7/administration/config/#configuration-overview
+# https://docs.influxdata.com/influxdb/v1.7/administration/authentication_and_authorization/
+# https://docs.influxdata.com/influxdb/v1.7/administration/authentication_and_authorization/#authorization
+# https://docs.influxdata.com/influxdb/v1.7/tools/shell/
+- name: Install and configure influxdb
+  hosts: tag_observer
+  gather_facts: no
+  become: yes
+  tasks:
+
+    - name: Configure influxdb repo
+      template:
+        src: templates/influxdb.repo
+        dest:  /etc/yum.repos.d/influxdb.repo
+
+    - name: Install influxdb
+      yum:
+        name: influxdb
+        state: latest
+
+    - name: Upload influxdb configuration
+      template:
+        src: templates/influxdb-config.toml
+        dest:  /etc/influxdb/influxdb.conf
+
+    # Not using this for now, instead we're front-ending everything with GCP LB which uses this cert anyways
+    #
+    # - name: Copy letsencrypt cert
+    #   copy:
+    #     src: "{{ item }}"
+    #     dest: /etc/ssl
+    #     owner: influxdb
+    #     group: influxdb
+    #     mode: 0644
+    #   with_items:
+    #   - ../platform/letsencrypt/etc/live/networkreliability.engineering-0001/cert.pem 
+    #   - ../platform/letsencrypt/etc/live/networkreliability.engineering-0001/privkey.pem
+
+    # - name: Create log directory
+    #   shell: "mkdir /var/log/influxdb && chown influxdb:influxdb /var/log/influxdb"
+
+    - name: Enable and restart services
+      systemd:
+        name: "{{ item }}"
+        state: restarted
+        daemon_reload: yes
+        enabled: True
+      with_items:
+        - influxdb
+
+    - name: Create admin user
+      shell: curl -G http://localhost:8086/query --data-urlencode "q=CREATE USER admin WITH PASSWORD 'fut-burd-fult-sonk' WITH ALL PRIVILEGES"
+
+      #Test with:
+      # curl -G https://influxdb.networkreliability.engineering/query --data-urlencode "u=admin" --data-urlencode "p=fut-burd-fult-sonk" --data-urlencode "q=SHOW DATABASES"
