@@ -76,7 +76,6 @@ resource "cloudflare_load_balancer_monitor" "antidote-monitor" {
   allow_insecure = true
   follow_redirects = true
 }
-    
 resource "cloudflare_record" "netlify" {
   domain = "networkreliability.engineering"
   name = "networkreliability.engineering"
@@ -175,68 +174,62 @@ resource "cloudflare_record" "community" {
   ttl    = 300
 }
 
-# -----------------------------------------------------
+resource "google_dns_record_set" "lily" {
+  name = "lily.networkreliability.engineering."
+  type = "A"
+  ttl  = 300
+  project = "${var.project}"
+  managed_zone = "nre"
+  rrdatas = [
+    "${packet_device.lily.network.0.address}",
+  ]
+}
+resource "google_dns_record_set" "packet" {
+  name = "packet.labs.networkreliability.engineering."
+  type = "A"
+  ttl  = 300
+  project = "${var.project}"
+  managed_zone = "nre"
+  rrdatas = [
+    "${packet_device.antidote-worker.0.network.0.address}",
+    "${packet_device.antidote-worker.1.network.0.address}",
+    "${packet_device.antidote-worker.2.network.0.address}",
+  ]
+}
 
-# resource "google_dns_record_set" "lily" {
-#   name = "lily.networkreliability.engineering."
-#   type = "A"
-#   ttl  = 300
-#   project = "${var.project}"
-#   managed_zone = "nre"
-#   rrdatas = [
-#     "${packet_device.lily.network.0.address}",
-#   ]
-# }
-# resource "google_dns_record_set" "packet" {
-#   name = "packet.labs.networkreliability.engineering."
-#   type = "A"
-#   ttl  = 300
-#   project = "${var.project}"
-#   managed_zone = "nre"
-#   rrdatas = [
-#     "${packet_device.antidote-worker.0.network.0.address}",
-#     "${packet_device.antidote-worker.1.network.0.address}",
-#     "${packet_device.antidote-worker.2.network.0.address}",
-#   ]
-# }
+resource "cloudflare_record" "lily" {
+  domain = "networkreliability.engineering"
+  name = "lily.networkreliability.engineering"
+  value  = "${packet_device.lily.network.0.address}"
+  type   = "A"
+  ttl    = 300
+}
 
+// convert these to the new for each resource syntax when it's released.
+//https://www.hashicorp.com/blog/hashicorp-terraform-0-12-preview-for-and-for-each
 
-# Re-enable once you have these up
-
-# resource "cloudflare_record" "lily" {
-#   domain = "networkreliability.engineering"
-#   name = "lily.networkreliability.engineering"
-#   value  = "${packet_device.lily.network.0.address}"
-#   type   = "A"
-#   ttl    = 300
-# }
-
-# // convert these to the new for each resource syntax when it's released.
-# //https://www.hashicorp.com/blog/hashicorp-terraform-0-12-preview-for-and-for-each
-
-# resource "cloudflare_record" "packetworker0" {
-#   domain = "networkreliability.engineering"
-#   name = "antidote-worker-0.labs.networkreliability.engineering"
-#   value  = "${packet_device.antidote-worker.0.network.0.address}"
-#   type   = "A"
-#   ttl    = 300
-# }
+resource "cloudflare_record" "packetworker0" {
+  domain = "networkreliability.engineering"
+  name = "antidote-worker-0.labs.networkreliability.engineering"
+  value  = "${packet_device.antidote-worker.0.network.0.address}"
+  type   = "A"
+  ttl    = 300
+}
 
 
-# resource "cloudflare_record" "packetworker1" {
-#   domain = "networkreliability.engineering"
-#   name = "antidote-worker-1.labs.networkreliability.engineering"
-#   value  = "${packet_device.antidote-worker.1.network.0.address}"
-#   type   = "A"
-#   ttl    = 300
-# }
+resource "cloudflare_record" "packetworker1" {
+  domain = "networkreliability.engineering"
+  name = "antidote-worker-1.labs.networkreliability.engineering"
+  value  = "${packet_device.antidote-worker.1.network.0.address}"
+  type   = "A"
+  ttl    = 300
+}
 
 
-# resource "cloudflare_record" "packetworker2" {
-#   domain = "networkreliability.engineering"
-#   name = "antidote-worker-2.labs.networkreliability.engineering"
-#   value  = "${packet_device.antidote-worker.2.network.0.address}"
-#   type   = "A"
-#   ttl    = 300
-# }
-
+resource "cloudflare_record" "packetworker2" {
+  domain = "networkreliability.engineering"
+  name = "antidote-worker-2.labs.networkreliability.engineering"
+  value  = "${packet_device.antidote-worker.2.network.0.address}"
+  type   = "A"
+  ttl    = 300
+}
