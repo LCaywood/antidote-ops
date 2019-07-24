@@ -13,6 +13,9 @@ resource "google_compute_firewall" "restrict-external" {
     # 30002 = nginx https nodeport
     # 6443 = k8s API
     # 30000-32767 = nodeport range
+    # TODO most of this isn't necessary anymore, now that you're allowing all traffic from the
+    # GCP LB subnets. You can severely restrict access here to at least 22 and 6443, the latter
+    # of which can be fixed by offering the k8s API the LB too
     ports    = ["22", "30001", "30002", "6443", "30000-32767"]
   }
 
@@ -68,6 +71,35 @@ resource "google_compute_firewall" "allow-st2" {
 
   source_ranges = [
     "0.0.0.0/0"
+  ]
+}
+
+
+resource "google_compute_firewall" "allow-gcp-lb" {
+  name = "allow-gcp-lb"
+
+  project = "${var.project}"
+
+  network = "${google_compute_network.default-internal.name}"
+
+  allow {
+    protocol = "icmp"
+  }
+
+  allow {
+    protocol = "tcp"
+    ports    = ["0-65535"]
+  }
+
+  allow {
+    protocol = "udp"
+    ports    = ["0-65535"]
+  }
+
+  # https://cloud.google.com/load-balancing/docs/https/#firewall_rules
+  source_ranges = [
+    "130.211.0.0/22",
+    "35.191.0.0/16"
   ]
 }
 
