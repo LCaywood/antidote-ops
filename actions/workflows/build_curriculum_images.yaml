@@ -30,8 +30,8 @@ antidoteops.build_curriculum_images:
       build_image:
         with-items: "image in {{ _.images }}"
         concurrency: 3
-        action: core.local
+        action: core.remote
         input:
           cmd: "cd /tmp/nrelabs-curriculum/images/{{ _.image }} && make docker TARGET_VERSION={{ _.version }}"
-          hosts: localhost
           timeout: 1200
+          hosts: localhost
