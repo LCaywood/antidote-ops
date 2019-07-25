@@ -1,9 +1,9 @@
 ---
 name: release
 runner_type: mistral-v2
-description: Prepare all antidote repos for release
+description: Create a release of the Antidote platform.
 enabled: true
-entry_point: workflows/release.yaml
+entry_point: workflows/release-platform.yaml
 parameters:
     version:
         type: string
@@ -14,7 +14,6 @@ parameters:
         items:
             type: string
         default:
-            - nrelabs-curriculum
             - antidote-web
             - syringe
         description: The list of projects to stage release.

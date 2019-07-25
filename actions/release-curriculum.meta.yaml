@@ -1,0 +1,33 @@
+---
+name: release
+runner_type: mistral-v2
+description: Release a version of an antidote curriculum
+enabled: true
+entry_point: workflows/release-curriclum.yaml
+parameters:
+    version:
+        type: string
+        description: Version to use for the release. Should include the patch e.g. 0.1.0
+        required: true
+    repo:
+        type: string
+        default: nrelabs-curriculum
+        description: Repository that houses curriculum
+        required: true
+    images:
+        type: array
+        items:
+            type: string
+        default:
+            - asterisk
+            - container-vqfx
+            - netbox
+            - pjsua-lindsey
+            - salt
+            - selfservice-flask-app
+            - st2
+            - terraform
+            - utility
+            - utility-vm
+        description: The list of images in this curriculum to build
+        required: true

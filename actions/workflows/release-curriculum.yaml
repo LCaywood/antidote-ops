@@ -1,0 +1,59 @@
+version: '2.0'
+antidoteops.release:
+    description: Create a release of the curriculum
+    input:
+        - version
+        - repos
+        - docker_repos
+
+    tasks:
+
+      # TODO Should add a check here to ensure that the version input is exactly semver compatible,
+      # excluding any leading "v" since this workflow does that for us.
+
+      determine_version:
+        action: core.noop
+        on-success:
+            - set_latest: <% $.version = 'latest' %>
+            - set_version: <% not $.version = 'latest' %>
+
+      set_latest:
+        action: core.noop
+        publish:
+          docker_version: latest
+          git_version: master
+        on-success:
+            - tag_repo
+
+      set_version:
+        action: core.noop
+        publish:
+          docker_version: "release-v{{ _.version }}"
+          git_version: "v{{ _.version }}"
+        on-success:
+            - tag_repo
+
+      # Create git tag and rotate changelog
+      tag_repo:
+        action: antidoteops.tag_repos
+        input:
+            project: "{{ _.repo }}"
+            git_version: "{{ _.git_version }}"
+        on-success:
+            - create_release
+
+      # Create github release containing the text from the changelog
+      create_release:
+        concurrency: 1
+        action: antidoteops.create_gh_release
+        input:
+          repo: "{{ _.repo }}"
+          version: "{{ _.git_version }}"
+        on-success:
+            - build_curriculum_images
+
+      build_curriculum_images:
+        action: antidoteops.build_curriculum_images
+        input:
+          version: "{{ _.git_version }}"
+          images: "{{ _.images }}"

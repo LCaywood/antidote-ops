@@ -1,0 +1,17 @@
+---
+name: build_curriculum_images
+runner_type: mistral-v2
+description: Build, tag, and push curriculum docker images
+enabled: true
+entry_point: workflows/build_curriculum_images.yaml
+parameters:
+    version:
+        type: string
+        description: The git ref to check out and build
+        required: true
+    images:
+        type: array
+        items:
+            type: string
+        description: The list of images in this curriculum to build
+        required: true

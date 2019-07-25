@@ -1,0 +1,37 @@
+
+
+version: '2.0'
+antidoteops.build_curriculum_images:
+    description: Build, tag, and push curriculum docker images
+    input:
+        - version
+        - images
+
+    tasks:
+
+      remove_existing:
+        action: core.remote
+        input:
+          cmd: sudo rm -rf /tmp/nrelabs-curriculum
+          hosts: localhost
+        on-success:
+          - clone_repo
+
+      clone_repo:
+        action: git.clone
+        input:
+          ref: "{{ _.version }}"
+          source: "https://github.com/nre-learning/nrelabs-curriculum.git"
+          destination: "/tmp/nrelabs-curriculum"
+          hosts: localhost
+        on-success:
+            - build_image
+
+      build_image:
+        with-items: "image in {{ _.images }}"
+        concurrency: 3
+        action: core.local
+        input:
+          cmd: "cd /tmp/nrelabs-curriculum/images/{{ _.image }} && make docker TARGET_VERSION={{ _.version }}"
+          hosts: localhost
+          timeout: 1200
