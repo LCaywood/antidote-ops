@@ -1,6 +1,6 @@
 
 ###############
-# Stackdriver #
+# Ansible     #
 ###############
 
 resource "google_service_account" "ansiblesa" {
@@ -24,6 +24,37 @@ resource "google_project_iam_binding" "ansible-bind" {
 
   members = [
     "serviceAccount:ansiblesa@${var.project_name}.iam.gserviceaccount.com",
+  ]
+}
+
+
+###############
+# Storage     #
+###############
+
+# Used primarily for retrieving base images like qcow or img files.
+
+resource "google_service_account" "storagesa" {
+  account_id   = "storagesa"
+  display_name = "storagesa"
+  project      = "${var.project}"
+}
+
+resource "google_service_account_key" "storagesa-key" {
+  service_account_id = "${google_service_account.storagesa.name}"
+}
+
+resource "local_file" "storagesa-key-file" {
+  content  = "${base64decode(google_service_account_key.storagesa-key.private_key)}"
+  filename = "${path.module}/inventory/storagesakey.json"
+}
+
+resource "google_project_iam_binding" "storagesa-bind" {
+  project = "${var.project}"
+  role = "roles/storage.objectViewer"
+
+  members = [
+    "serviceAccount:storagesa@${var.project_name}.iam.gserviceaccount.com",
   ]
 }
 

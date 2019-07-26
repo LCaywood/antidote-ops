@@ -1,0 +1,90 @@
+
+
+---
+
+# RUN LIKE THIS:
+
+# TODO(mierdin): While the stats posting uses a slack webhook, you'll still need a token for chatops
+# if you want to hook that up. For this, go to https://api.slack.com/apps and go to your app,
+# and add a "bot user". Both a webhook and a token are generated when you install the app to your workspace.
+# So you may have to redo this.
+
+# ansible-playbook provisionabathur.yml -i inventory/ --extra-vars "st2_password=<insert password here>"
+
+- name: Install and configure software
+  hosts: tag_st2
+  gather_facts: no
+  become: yes
+  tasks:
+
+    - name: Enable IP forwarding (so docker will work)
+      shell: sysctl net.ipv4.ip_forward=1
+
+    # - name: Install StackStorm
+    #   shell: curl -sSL https://stackstorm.com/packages/install.sh | bash -s -- --user=st2admin --password='{{ st2_password }}'
+
+    - name: Install Packs
+      shell: "st2 pack install {{ item }}"
+      with_items:
+      - "git"
+      - "slack"
+      - "twitter"
+      - "https://github.com/nre-learning/antidote-ops=split-curriculum-wf"
+
+    - name: Copy bashrc
+      copy:
+        src: templates/bashrc
+        dest: /home/mierdin/.bashrc
+        owner: mierdin
+        group: mierdin
+        mode: 0644
+
+    # TODO(mierdin): Don't forget to configure the slack pack using the webhook URL from the
+    # apps page available at https://api.slack.com/apps
+
+    # - name: Install docker
+    #   shell: "{{ item }}"
+    #   with_items:
+    #   - "curl -fsSL https://get.docker.com/ | sh"
+    #   - "usermod -aG docker mierdin"
+    #   - "usermod -aG docker stanley"
+    #   - "systemctl start docker"
+    #   - "systemctl restart docker"
+    #   - "systemctl enable docker"
+
+    # TODO(mierdin): Need to run "docker login" under the stanley account so our image WFs
+    # can push images to docker hub
+
+    - name: Configure Google Cloud repo
+      copy:
+        src: templates/google-cloud-sdk.repo
+        dest: /etc/yum.repos.d/
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Install google cloud SDK
+      yum:
+        name: google-cloud-sdk
+        state: latest
+
+    - name: Copy storage service account file
+      copy:
+        src: inventory/storagesakey.json
+        dest: /home/stanley/
+        owner: stanley
+        group: stanley
+        mode: 0644
+
+    - name: Activate service account as stanley
+      shell: gcloud auth activate-service-account --key-file=/home/stanley/storagesakey.json
+      become_user: stanley
+
+    - name: Copy stats service account file
+      copy:
+        src: inventory/nrelabs-stats.json
+        dest: /home/stanley/
+        owner: stanley
+        group: stanley
+        mode: 0644
+
