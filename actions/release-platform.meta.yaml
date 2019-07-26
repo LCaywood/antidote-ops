@@ -1,5 +1,5 @@
 ---
-name: release
+name: release_platform
 runner_type: mistral-v2
 description: Create a release of the Antidote platform.
 enabled: true

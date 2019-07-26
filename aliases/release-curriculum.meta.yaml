@@ -1,0 +1,15 @@
+---
+name: "release"
+pack: "antidoteops"
+action_ref: "antidoteops.release_curriculum"
+description: "Create a release for an Antidote-compatible curriculum"
+formats:
+  - "curriculum release {{version}}"
+
+result:
+  format: |
+    {% if execution.status != "failed"  %}
+      Successfully released {{ execution.parameters.version }}
+    {% else %}
+      There was a problem releasing {{ execution.parameters.version }}
+    {% endif %}

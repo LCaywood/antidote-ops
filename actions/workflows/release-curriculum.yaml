@@ -3,8 +3,7 @@ antidoteops.release:
     description: Create a release of the curriculum
     input:
         - version
-        - repos
-        - docker_repos
+        - repo
 
     tasks:
 

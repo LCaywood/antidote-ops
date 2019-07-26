@@ -35,7 +35,7 @@ antidoteops.build_curriculum_images:
         publish:
           split_images: <% task(get_buildables).result.localhost.stdout.split('::').select(str($).trim("./")) %> 
         on-success:
-            - get_buildables
+            - echo_something
 
       echo_something:
         action: core.remote

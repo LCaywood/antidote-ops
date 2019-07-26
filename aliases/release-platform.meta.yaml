@@ -1,10 +1,10 @@
 ---
 name: "release"
 pack: "antidoteops"
-action_ref: "antidoteops.release"
-description: "Release antidote"
+action_ref: "antidoteops.release_platform"
+description: "Create a release for the Antidote platform"
 formats:
-  - "antidote release {{version}}"
+  - "antidote platform release {{version}}"
 
 result:
   format: |
