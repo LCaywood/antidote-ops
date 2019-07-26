@@ -9,9 +9,8 @@ parameters:
         type: string
         description: The git ref to check out and build
         required: true
-    images:
-        type: array
-        items:
-            type: string
-        description: The list of images in this curriculum to build
+    curriculum_repo:
+        type: string
+        description: The git repo where the curriculum is located
+        default: https://github.com/nre-learning/nrelabs-curriculum.git
         required: true

@@ -5,7 +5,7 @@ antidoteops.build_curriculum_images:
     description: Build, tag, and push curriculum docker images
     input:
         - version
-        - images
+        - curriculum_repo
 
     tasks:
 
@@ -21,14 +21,32 @@ antidoteops.build_curriculum_images:
         action: git.clone
         input:
           ref: "{{ _.version }}"
-          source: "https://github.com/nre-learning/nrelabs-curriculum.git"
+          source: "{{ _.curriculum_repo }}"
           destination: "/tmp/nrelabs-curriculum"
+          hosts: localhost
+        on-success:
+            - get_buildables
+
+      get_buildables:
+        action: core.remote
+        input:
+          cmd: cd /tmp/nrelabs-curriculum/images && find . -maxdepth 2 -type f -name 'Makefile' -printf '%h::' | sed -r 's|/[^/]+$||' | rev | cut -c 4- | rev
+          hosts: localhost
+        publish:
+          split_images: <% task(get_buildables).result.localhost.stdout.split('::').select(str($).trim("./")) %> 
+        on-success:
+            - get_buildables
+
+      echo_something:
+        action: core.remote
+        input:
+          cmd: "echo {{ _.split_images }}"
           hosts: localhost
         on-success:
             - build_image
 
       build_image:
-        with-items: "image in {{ _.images }}"
+        with-items: "image in {{ _.split_images }}"
         concurrency: 3
         action: core.remote
         input:
