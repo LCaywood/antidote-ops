@@ -3,7 +3,7 @@ name: release_curriculum
 runner_type: mistral-v2
 description: Release a version of an antidote curriculum
 enabled: true
-entry_point: workflows/release-curriclum.yaml
+entry_point: workflows/release-curriculum.yaml
 parameters:
     version:
         type: string

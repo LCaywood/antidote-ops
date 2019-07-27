@@ -1,5 +1,5 @@
 version: '2.0'
-antidoteops.release:
+antidoteops.release_curriculum:
     description: Create a release of the curriculum
     input:
         - version
@@ -55,4 +55,3 @@ antidoteops.release:
         action: antidoteops.build_curriculum_images
         input:
           version: "{{ _.git_version }}"
-          images: "{{ _.images }}"
