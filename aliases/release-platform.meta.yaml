@@ -1,0 +1,15 @@
+---
+name: "release_platform"
+pack: "antidoteops"
+action_ref: "antidoteops.release_platform"
+description: "Create a release for the Antidote platform"
+formats:
+  - "antidote platform release {{version}}"
+
+result:
+  format: |
+    {% if execution.status != "failed"  %}
+      Successfully released {{ execution.parameters.version }}
+    {% else %}
+      There was a problem releasing {{ execution.parameters.version }}
+    {% endif %}

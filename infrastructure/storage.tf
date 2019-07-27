@@ -20,3 +20,10 @@ resource "google_storage_object_acl" "maintenance-acl" {
   object = "${google_storage_bucket_object.index.name}"
   predefined_acl = "publicRead"
 }
+
+resource "google_storage_bucket" "nrelabs-curriculum-base-images" {
+  name     = "nrelabs-curriculum-base-images"
+  location = "US"
+
+  project   = "${var.project}"
+}

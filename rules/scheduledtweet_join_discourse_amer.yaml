@@ -15,8 +15,7 @@ action:
   parameters:
       account: "nrelabs"
       status: |
-        The NRE Community Forums are your one-stop shop for asking questions about NRE Labs, collaborating
-        on the Antidote project, and general discussions about automation and reliability engineering.
+        The NRE Community Forums are your one-stop shop for asking questions about NRE Labs, collaborating on the Antidote project, and general discussions about automation and reliability engineering.
 
         Join now!
 

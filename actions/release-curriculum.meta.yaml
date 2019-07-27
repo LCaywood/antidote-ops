@@ -1,0 +1,16 @@
+---
+name: release_curriculum
+runner_type: mistral-v2
+description: Release a version of an antidote curriculum
+enabled: true
+entry_point: workflows/release-curriculum.yaml
+parameters:
+    version:
+        type: string
+        description: Version to use for the release. Should include the patch e.g. 0.1.0
+        required: true
+    repo:
+        type: string
+        default: nrelabs-curriculum
+        description: Repository that houses curriculum
+        required: true

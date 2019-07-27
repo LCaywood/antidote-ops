@@ -1,0 +1,20 @@
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+# Uncomment the following line if you don't like systemctl's auto-paging feature:
+# export SYSTEMD_PAGER=
+
+# User specific aliases and functions
+
+# StackStorm aliases
+alias sel="st2 execution list"
+alias seg="st2 execution get"
+alias ser="st2 execution re-run"
+function segl() {
+        # Print most recent execution
+        st2 execution get $(st2 execution list | grep "[0-9a-f]\{24\}" | tail -1 | awk '{print $2}')
+}
