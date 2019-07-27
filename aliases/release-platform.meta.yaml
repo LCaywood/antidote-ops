@@ -1,5 +1,5 @@
 ---
-name: "release"
+name: "release_platform"
 pack: "antidoteops"
 action_ref: "antidoteops.release_platform"
 description: "Create a release for the Antidote platform"
