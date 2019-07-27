@@ -258,12 +258,13 @@ resource "google_compute_instance" "abathur" {
 
   tags = ["st2"]
 
-  # 2 vCPUs, 7.5GB RAM
+  # 4 vCPUs, 15 GB memory
   machine_type = "n1-standard-4"
 
   boot_disk {
     initialize_params {
-    image = "${var.os["centos-7"]}"
+      image = "${var.os["centos-7"]}"
+      size = 200
     }
   }
 

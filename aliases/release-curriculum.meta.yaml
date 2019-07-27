@@ -1,10 +1,10 @@
 ---
-name: "release"
+name: "release_curriculum"
 pack: "antidoteops"
-action_ref: "antidoteops.release"
-description: "Release antidote"
+action_ref: "antidoteops.release_curriculum"
+description: "Create a release for an Antidote-compatible curriculum"
 formats:
-  - "antidote release {{version}}"
+  - "curriculum release {{version}}"
 
 result:
   format: |

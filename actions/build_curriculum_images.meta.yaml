@@ -1,0 +1,16 @@
+---
+name: build_curriculum_images
+runner_type: mistral-v2
+description: Build, tag, and push curriculum docker images
+enabled: true
+entry_point: workflows/build_curriculum_images.yaml
+parameters:
+    version:
+        type: string
+        description: The git ref to check out and build
+        required: true
+    curriculum_repo:
+        type: string
+        description: The git repo where the curriculum is located
+        default: https://github.com/nre-learning/nrelabs-curriculum.git
+        required: true

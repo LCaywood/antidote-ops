@@ -15,4 +15,4 @@ action:
   parameters:
     version: latest
     tier: ptr
-enabled: true
+enabled: false

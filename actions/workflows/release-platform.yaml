@@ -1,5 +1,5 @@
 version: '2.0'
-antidoteops.release:
+antidoteops.release_platform:
     description: Prepare antidote projects for release.
     input:
         - version
@@ -68,6 +68,7 @@ antidoteops.release:
             - compile_and_upload_syringe_assets
 
       # Compile Syringe for all supported platforms and attach binaries as assets to this release
+      # TODO(mierdin): need to provide precompiled "latest" binaries, not just releases.
       compile_and_upload_syringe_assets:
         action: core.local
         input:
@@ -75,7 +76,7 @@ antidoteops.release:
             env:
               GITHUB_TOKEN: "{{st2kv.system.github_oauth_token}}"
               RELEASE_VERSION: <% $.git_version %>
-            cmd: "docker run antidotelabs/syringebuilder /compile_and_upload.sh $GITHUB_TOKEN $RELEASE_VERSION"
+            cmd: "docker pull antidotelabs/syringebuilder && docker run antidotelabs/syringebuilder /compile_and_upload.sh $GITHUB_TOKEN $RELEASE_VERSION"
         on-success:
             - publish_docker_images
 
