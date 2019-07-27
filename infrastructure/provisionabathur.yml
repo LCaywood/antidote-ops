@@ -20,8 +20,14 @@
     - name: Enable IP forwarding (so docker will work)
       shell: sysctl net.ipv4.ip_forward=1
 
-    # - name: Install StackStorm
-    #   shell: curl -sSL https://stackstorm.com/packages/install.sh | bash -s -- --user=st2admin --password='{{ st2_password }}'
+    - name: Check for st2 installation
+      command: st2 --version
+      register: command_result
+      ignore_errors: True
+
+    - name: Install StackStorm
+      shell: curl -sSL https://stackstorm.com/packages/install.sh | bash -s -- --user=st2admin --password='{{ st2_password }}'
+      when: "'on Python' not in command_result.stderr"
 
     - name: Install Packs
       shell: "st2 pack install {{ item }}"
@@ -29,7 +35,10 @@
       - "git"
       - "slack"
       - "twitter"
+      - "github"
       - "https://github.com/nre-learning/antidote-ops=split-curriculum-wf"
+
+    # Make sure github pack is configured, and st2kv is updated
 
     - name: Copy bashrc
       copy:
@@ -42,15 +51,21 @@
     # TODO(mierdin): Don't forget to configure the slack pack using the webhook URL from the
     # apps page available at https://api.slack.com/apps
 
-    # - name: Install docker
-    #   shell: "{{ item }}"
-    #   with_items:
-    #   - "curl -fsSL https://get.docker.com/ | sh"
-    #   - "usermod -aG docker mierdin"
-    #   - "usermod -aG docker stanley"
-    #   - "systemctl start docker"
-    #   - "systemctl restart docker"
-    #   - "systemctl enable docker"
+    - name: Check for docker installation
+      command: docker -v
+      register: docker_command_result
+      ignore_errors: True
+
+    - name: Install docker
+      shell: "{{ item }}"
+      with_items:
+      - "curl -fsSL https://get.docker.com/ | sh"
+      - "usermod -aG docker mierdin"
+      - "usermod -aG docker stanley"
+      - "systemctl start docker"
+      - "systemctl restart docker"
+      - "systemctl enable docker"
+      when: "'Docker version' not in docker_command_result.stdout"
 
     # TODO(mierdin): Need to run "docker login" under the stanley account so our image WFs
     # can push images to docker hub
@@ -66,6 +81,11 @@
     - name: Install google cloud SDK
       yum:
         name: google-cloud-sdk
+        state: latest
+
+    - name: Install discount, for markdown CLI tool
+      yum:
+        name: discount
         state: latest
 
     - name: Copy storage service account file
@@ -87,4 +107,3 @@
         owner: stanley
         group: stanley
         mode: 0644
-
