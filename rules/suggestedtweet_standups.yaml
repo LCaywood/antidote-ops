@@ -1,5 +1,5 @@
 ---
-name: scheduledtweet_community_amer
+name: scheduledtweet_standups_amer
 description: Tweet community AMER
 trigger:
   type: "core.st2.CronTimer"
