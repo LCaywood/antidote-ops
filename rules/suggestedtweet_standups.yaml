@@ -1,0 +1,21 @@
+---
+name: scheduledtweet_community_amer
+description: Tweet community AMER
+trigger:
+  type: "core.st2.CronTimer"
+  parameters:
+      timezone: "UTC"
+      day_of_week: 1
+      hour: 19
+      minute: 0
+      second: 0
+criteria: {}
+action:
+  ref: twitter.update_status
+  parameters:
+      account: "nrelabs"
+      status: |
+       NRE Labs holds weekly community meetings on Tuesdays at 8am Pacific/11am Eastern/5pm CET. Join us to discuss the latest ideas and activities--agenda and meeting info here: https://community.networkreliability.engineering/c/announcements 
+
+      media: ["https://raw.githubusercontent.com/nre-learning/nre-blog/master/static/images/community.jpg"]
+enabled: true
